@@ -18,7 +18,7 @@ type Poem struct {
 	LinesCode []string
 }
 
-func ServeWelcome(w http.ResponseWriter, welcomeHtml []byte) {
+func ServeWelcome(w http.ResponseWriter, welcomeHtml []byte, contextPath string) {
 	welcome := string(welcomeHtml)
 
 	poem, linesIndex := RandomPoem()
@@ -36,6 +36,7 @@ func ServeWelcome(w http.ResponseWriter, welcomeHtml []byte) {
 	}
 
 	welcome = strings.Replace(welcome, "<PoemLines/>", lines, 1)
+	welcome = strings.Replace(welcome, `${/ContextPath}`, contextPath, -1)
 
 	w.Write([]byte(welcome))
 }
