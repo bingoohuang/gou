@@ -1,14 +1,13 @@
 package go_utils
 
 import (
-	"io/ioutil"
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
-	"encoding/base64"
-	"bytes"
-	"net/http"
-	"github.com/bingoohuang/go-utils"
 )
 
 type Poem struct {
@@ -19,10 +18,10 @@ type Poem struct {
 	LinesCode []string
 }
 
-func serveWelcome(w http.ResponseWriter, r *http.Request, welcomeHtml []byte) {
+func ServeWelcome(w http.ResponseWriter, welcomeHtml []byte) {
 	welcome := string(welcomeHtml)
 
-	poem, linesIndex := go_utils.RandomPoem()
+	poem, linesIndex := RandomPoem()
 
 	welcome = strings.Replace(welcome, "<PoemTitle/>", poem.Title, 1)
 	welcome = strings.Replace(welcome, "<PoemAuthor/>", poem.Author, 1)

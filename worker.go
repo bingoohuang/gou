@@ -1,8 +1,8 @@
 package go_utils
 
 import (
-	"os"
 	"github.com/lunny/log"
+	"os"
 	"strconv"
 )
 
