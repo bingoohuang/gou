@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"bytes"
 	"net/http"
+	"github.com/bingoohuang/go-utils"
 )
 
 type Poem struct {
@@ -18,6 +19,27 @@ type Poem struct {
 	LinesCode []string
 }
 
+func serveWelcome(w http.ResponseWriter, r *http.Request, welcomeHtml []byte) {
+	welcome := string(welcomeHtml)
+
+	poem, linesIndex := go_utils.RandomPoem()
+
+	welcome = strings.Replace(welcome, "<PoemTitle/>", poem.Title, 1)
+	welcome = strings.Replace(welcome, "<PoemAuthor/>", poem.Author, 1)
+
+	lines := ""
+	for i, line := range poem.Lines {
+		if i == linesIndex {
+			lines += `<div style="color:red">` + line + `</div>`
+		} else {
+			lines += `<div>` + line + `</div>`
+		}
+	}
+
+	welcome = strings.Replace(welcome, "<PoemLines/>", lines, 1)
+
+	w.Write([]byte(welcome))
+}
 
 func RandomPoemBasicAuth(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +74,6 @@ func RandomPoemBasicAuth(fn http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-
 func RandomPoem() (Poem, int) {
 	poems := ParsePoems("./poems.txt")
 	now := time.Now()
@@ -61,7 +82,6 @@ func RandomPoem() (Poem, int) {
 	linesIndex := int(now.Weekday()) % len(poem.LinesCode)
 	return poem, linesIndex
 }
-
 
 func ParsePoems(poemFile string) []Poem {
 	poems := make([]Poem, 0)
