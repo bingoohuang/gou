@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 	"time"
+	"fmt"
 )
 
 type ExecuteSqlResult struct {
@@ -26,6 +27,9 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		if r != nil {
 			affected, _ = r.RowsAffected()
 		}
+
+		fmt.Println("RowsAffected:", affected, ",Error:", err.Error())
+
 		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected, IsQuerySql: false}
 	}
 
