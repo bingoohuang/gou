@@ -19,3 +19,10 @@ func FirstWord(value string) string {
 	// Return the entire string.
 	return value[started:ended]
 }
+
+func IfElse(ifCondition bool, ifValue, elseValue string) string {
+	if ifCondition {
+		return ifValue
+	}
+	return elseValue
+}

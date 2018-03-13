@@ -15,72 +15,46 @@ type ExecuteSqlResult struct {
 	RowsAffected int64
 }
 
-func ExecuteSql(db *sql.DB, sql string, maxRows int) ExecuteSqlResult {
-	log.Printf("querying: %s", sql)
+func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
+	log.Printf("querying: %s", oneSql)
 	start := time.Now()
 
-	if !IsQuerySql(sql) {
-		r, err := db.Exec(sql)
-		rowsAffected, _ := r.RowsAffected()
-		return ExecuteSqlResult{
-			Error:        err,
-			CostTime:     time.Since(start),
-			RowsAffected: rowsAffected,
-		}
+	if !IsQuerySql(oneSql) {
+		r, err := db.Exec(oneSql)
+		affected, _ := r.RowsAffected()
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected}
 	}
 
-	rows, err := db.Query(sql)
+	rows, err := db.Query(oneSql)
 	if err != nil {
-		return ExecuteSqlResult{
-			Error:    err,
-			CostTime: time.Since(start),
-		}
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start)}
 	}
-
 	columns, err := rows.Columns()
 	if err != nil {
-		return ExecuteSqlResult{
-			Error:    err,
-			CostTime: time.Since(start),
-		}
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start)}
 	}
 
 	columnSize := len(columns)
 	data := make([][]string, 0)
-
 	for row := 0; rows.Next() && (maxRows == 0 || row < maxRows); row++ {
-		strValues := make([]sql.NullString, columnSize)
+		holders := make([]sql.NullString, columnSize)
 		pointers := make([]interface{}, columnSize)
 		for i := 0; i < columnSize; i++ {
-			pointers[i] = &strValues[i]
+			pointers[i] = &holders[i]
 		}
 		if err := rows.Scan(pointers...); err != nil {
-			return ExecuteSqlResult{
-				Error:    err,
-				CostTime: time.Since(start),
-				Headers:  columns,
-				Rows:     data,
-			}
+			return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data}
 		}
 
 		values := make([]string, columnSize)
-		for i, v := range strValues {
-			if v.Valid {
-				values[i] = v.String
-			} else {
-				values[i] = "(null)"
-			}
+		for i, v := range holders {
+			values[i] = IfElse(v.Valid, v.String, "(null)")
 		}
 
 		data = append(data, values)
 	}
 
-	return ExecuteSqlResult{
-		Error:    err,
-		CostTime: time.Since(start),
-		Headers:  columns,
-		Rows:     data,
-	}
+	return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data}
 }
 
 func IsQuerySql(sql string) bool {
