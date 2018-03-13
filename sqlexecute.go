@@ -21,7 +21,10 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 
 	if !IsQuerySql(oneSql) {
 		r, err := db.Exec(oneSql)
-		affected, _ := r.RowsAffected()
+		var affected int64 = 0
+		if err != nil {
+			affected, _ = r.RowsAffected()
+		}
 		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected}
 	}
 
