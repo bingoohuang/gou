@@ -16,4 +16,3 @@ func TomlToJson(data []byte) ([]byte, error) {
 	}
 	return json, nil
 }
-
