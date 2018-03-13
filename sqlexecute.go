@@ -2,7 +2,6 @@ package go_utils
 
 import (
 	"database/sql"
-	"github.com/bingoohuang/go-utils"
 	"log"
 	"strings"
 	"time"
@@ -49,7 +48,7 @@ func ExecuteSql(db *sql.DB, sql string, maxRows int) ExecuteSqlResult {
 	columnSize := len(columns)
 	data := make([][]string, 0)
 
-	for row := 1; rows.Next() && (maxRows == 0 || row <= maxRows); row++ {
+	for row := 0; rows.Next() && (maxRows == 0 || row < maxRows); row++ {
 		strValues := make([]sql.NullString, columnSize)
 		pointers := make([]interface{}, columnSize)
 		for i := 0; i < columnSize; i++ {
@@ -85,7 +84,7 @@ func ExecuteSql(db *sql.DB, sql string, maxRows int) ExecuteSqlResult {
 }
 
 func IsQuerySql(sql string) bool {
-	firstWord := strings.ToUpper(go_utils.FirstWord(sql))
+	firstWord := strings.ToUpper(FirstWord(sql))
 	switch firstWord {
 	case "INSERT", "DELETE", "UPDATE", "SET":
 		return false
