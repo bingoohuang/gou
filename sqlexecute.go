@@ -13,6 +13,7 @@ type ExecuteSqlResult struct {
 	Headers      []string
 	Rows         [][]string
 	RowsAffected int64
+	IsQuerySql   bool
 }
 
 func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
@@ -25,7 +26,7 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		if err != nil && r != nil {
 			affected, _ = r.RowsAffected()
 		}
-		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected}
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected, IsQuerySql: false}
 	}
 
 	rows, err := db.Query(oneSql)
@@ -57,7 +58,7 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		data = append(data, values)
 	}
 
-	return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data}
+	return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data, IsQuerySql: true}
 }
 
 func IsQuerySql(sql string) bool {
