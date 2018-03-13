@@ -3,7 +3,6 @@ package go_utils
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"strings"
 	"time"
