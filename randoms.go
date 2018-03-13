@@ -1,8 +1,8 @@
 package go_utils
 
 import (
-	"time"
 	"math/rand"
+	"time"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

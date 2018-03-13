@@ -1,16 +1,16 @@
 package go_utils
 
 import (
-	"strings"
+	"bytes"
 	"compress/gzip"
-	"net/http"
 	"io"
-	"net/http/httputil"
 	"log"
 	"mime"
-	"path/filepath"
-	"bytes"
+	"net/http"
+	"net/http/httputil"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type GzipResponseWriter struct {

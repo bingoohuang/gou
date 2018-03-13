@@ -1,9 +1,9 @@
 package go_utils
 
 import (
-	"time"
-	"runtime"
 	"github.com/skratchdot/open-golang/open"
+	"runtime"
+	"time"
 )
 
 func OpenExplorer(port string) {
