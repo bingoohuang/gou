@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"fmt"
+	"github.com/bingoohuang/go-utils"
 )
 
 type ExecuteSqlResult struct {
@@ -28,7 +29,7 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 			affected, _ = r.RowsAffected()
 		}
 
-		fmt.Println("RowsAffected:", affected, ",Error:", err.Error())
+		fmt.Println("RowsAffected:", affected, ",Error:", go_utils.Error(err))
 
 		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected, IsQuerySql: false}
 	}
