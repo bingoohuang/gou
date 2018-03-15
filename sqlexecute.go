@@ -21,7 +21,8 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 	log.Printf("querying: %s", oneSql)
 	start := time.Now()
 
-	if !IsQuerySql(oneSql) {
+	isQuerySql := IsQuerySql(oneSql)
+	if !isQuerySql {
 		r, err := db.Exec(oneSql)
 		var affected int64 = 0
 		if r != nil {
@@ -30,16 +31,16 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 
 		fmt.Println("RowsAffected:", affected, ",Error:", Error(err))
 
-		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected, IsQuerySql: false}
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), RowsAffected: affected, IsQuerySql: isQuerySql}
 	}
 
 	rows, err := db.Query(oneSql)
 	if err != nil {
-		return ExecuteSqlResult{Error: err, CostTime: time.Since(start)}
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), IsQuerySql: isQuerySql}
 	}
 	columns, err := rows.Columns()
 	if err != nil {
-		return ExecuteSqlResult{Error: err, CostTime: time.Since(start)}
+		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), IsQuerySql: isQuerySql}
 	}
 
 	columnSize := len(columns)
@@ -51,7 +52,7 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 			pointers[i] = &holders[i]
 		}
 		if err := rows.Scan(pointers...); err != nil {
-			return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data}
+			return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data, IsQuerySql: isQuerySql}
 		}
 
 		values := make([]string, columnSize)
@@ -62,7 +63,7 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		data = append(data, values)
 	}
 
-	return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data, IsQuerySql: true}
+	return ExecuteSqlResult{Error: err, CostTime: time.Since(start), Headers: columns, Rows: data, IsQuerySql: isQuerySql}
 }
 
 func IsQuerySql(sql string) bool {
