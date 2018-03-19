@@ -3,6 +3,7 @@ package go_utils
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"io"
 	"log"
 	"mime"
@@ -11,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"encoding/json"
 )
 
 type GzipResponseWriter struct {

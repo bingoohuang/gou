@@ -1,11 +1,11 @@
 package go_utils
 
 import (
+	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 	"time"
-	"encoding/json"
-	"log"
-	"errors"
 )
 
 func ClearCookie(w http.ResponseWriter, cookieName string) {
