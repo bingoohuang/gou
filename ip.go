@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"regexp"
 )
 
 /*
@@ -65,4 +66,9 @@ func IsPrivateIP(ip string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func IsIP4Valid(ipv4 string) bool {
+	re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
+	return re.MatchString(ipv4)
 }
