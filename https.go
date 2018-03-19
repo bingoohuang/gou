@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"encoding/json"
 )
 
 type GzipResponseWriter struct {
@@ -63,4 +64,51 @@ func ServeImage(imageBytes []byte, fi os.FileInfo) func(w http.ResponseWriter, r
 		w.WriteHeader(http.StatusOK)
 		io.Copy(w, buffer)
 	}
+}
+
+func ReadObjectString(object io.ReadCloser) string {
+	defer object.Close()
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(object)
+	return buf.String()
+}
+
+func ReadObjectBytes(object io.ReadCloser) []byte {
+	defer object.Close()
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(object)
+	return buf.Bytes()
+}
+
+func HttpPost(url string, requestBody interface{}) ([]byte, error) {
+	b, err := json.Marshal(requestBody)
+	if err != nil {
+		log.Println("json err:", err)
+		return nil, err
+	}
+
+	body := bytes.NewBuffer([]byte(b))
+	log.Println("url:", url)
+	resp, err := http.Post(url, "application/json;charset=utf-8", body)
+	log.Println("resp:", resp, ",err:", err)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody := ReadObjectBytes(resp.Body)
+	return respBody, nil
+}
+
+func HttpGet(url string) ([]byte, error) {
+	log.Println("url:", url)
+	resp, err := http.Get(url)
+	log.Println("resp:", resp, ",err:", err)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody := ReadObjectBytes(resp.Body)
+	return respBody, nil
 }
