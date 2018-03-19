@@ -131,82 +131,46 @@ func CreateWxQyLoginUrl(cropId, agentId, redirectUri, csrfToken string) string {
 //	http.Redirect(w, r, url, 302) // Temporarily Move
 //}
 
-type CookieValue struct {
-	UserId      string
-	Name        string
-	Avatar      string
-	CsrfToken   string
-	ExpiredTime string
+type CookieValue interface {
+	ExpiredTime() time.Time
 }
 
-func WriteUserInfoCookie(w http.ResponseWriter, wxUserInfo *WxUserInfo, encryptKey, cookieName string) *CookieValue {
-	value := CookieValue{
-		UserId:      wxUserInfo.UserId,
-		Name:        wxUserInfo.Name,
-		Avatar:      wxUserInfo.Avatar,
-		CsrfToken:   "",
-		ExpiredTime: time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
-	}
-	cookieVal, _ := json.Marshal(value)
-
-	cipher, _ := CBCEncrypt(encryptKey, string(cookieVal))
-	cookie := http.Cookie{Name: cookieName, Value: cipher, Path: "/", MaxAge: 86400}
-	http.SetCookie(w, &cookie)
-
-	return &value
-}
-
-func WriteCsrfTokenCookie(w http.ResponseWriter, encryptKey, cookieName, csrfToken string) {
-	cookieVal, err := json.Marshal(CookieValue{
-		UserId:      "",
-		Name:        "",
-		Avatar:      "",
-		CsrfToken:   csrfToken,
-		ExpiredTime: time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
-	})
+func WriteUserInfoCookie(w http.ResponseWriter, encryptKey, cookieName string, cookieValue CookieValue) error {
+	cookieVal, err := json.Marshal(cookieValue)
 	if err != nil {
-		log.Println("json cookie error", err)
+		return err
 	}
 
-	json := string(cookieVal)
-	log.Println("csrf json:", json)
-	cipher, err := CBCEncrypt(encryptKey, json)
+	cipher, err := CBCEncrypt(encryptKey, string(cookieVal))
 	if err != nil {
-		log.Println("CBCEncrypt cookie error", err)
+		return err
 	}
 
 	cookie := http.Cookie{Name: cookieName, Value: cipher, Path: "/", MaxAge: 86400}
 	http.SetCookie(w, &cookie)
+
+	return nil
 }
 
-func ReadLoginCookie(r *http.Request, encryptKey, cookieName string) *CookieValue {
-	cookie, _ := r.Cookie(cookieName)
-	if cookie == nil {
-		return nil
+func ReadLoginCookie(r *http.Request, encryptKey, cookieName string, cookieValue CookieValue) error {
+	cookie, err := r.Cookie(cookieName)
+	if err != nil {
+		return err
 	}
 
 	log.Println("cookie value:", cookie.Value)
-	decrypted, _ := CBCDecrypt(encryptKey, cookie.Value)
-	if decrypted == "" {
-		return nil
+	decrypted, err := CBCDecrypt(encryptKey, cookie.Value)
+	if err != nil {
+		return err
 	}
 
-	var cookieValue CookieValue
-	err := json.Unmarshal([]byte(decrypted), &cookieValue)
+	err = json.Unmarshal([]byte(decrypted), cookieValue)
 	if err != nil {
 		log.Println("unamrshal error:", err)
-		return nil
+		return err
 	}
 
-	log.Println("cookie parsed:", cookieValue, ",ExpiredTime:", cookieValue.ExpiredTime)
+	log.Println("cookie parsed:", cookieValue)
 
-	expired, err := time.Parse(time.RFC3339, cookieValue.ExpiredTime)
-	if err != nil {
-		log.Println("time.Parse:", err)
-	}
-	if err != nil || expired.Before(time.Now()) {
-		return nil
-	}
-
-	return &cookieValue
+	return nil
 }
