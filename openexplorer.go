@@ -1,12 +1,12 @@
 package go_utils
 
 import (
-	"github.com/skratchdot/open-golang/open"
-	"runtime"
 	"time"
+	"runtime"
+	"github.com/skratchdot/open-golang/open"
 )
 
-func OpenExplorer(port string) {
+func OpenExplorerWithContext(contextPath, port string) {
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 
@@ -14,7 +14,11 @@ func OpenExplorer(port string) {
 		case "windows":
 			fallthrough
 		case "darwin":
-			open.Run("http://127.0.0.1:" + port + "/?" + RandString(10))
+			open.Run("http://127.0.0.1:" + port + contextPath + "/?" + RandString(10))
 		}
 	}()
+}
+
+func OpenExplorer(port string) {
+	OpenExplorerWithContext("", port)
 }
