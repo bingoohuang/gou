@@ -42,7 +42,7 @@ const tmpl = `-- Go SQL Dump {{ .DumpVersion }}
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 {{range .Tables}}
 --
--- Table structure for MySqlTable {{ .Name }}
+-- Table structure for table {{ .Name }}
 --
 DROP TABLE IF EXISTS {{ .Name }};
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -50,7 +50,7 @@ DROP TABLE IF EXISTS {{ .Name }};
 {{ .SQL }};
 /*!40101 SET character_set_client = @saved_cs_client */;
 --
--- Dumping data for MySqlTable {{ .Name }}
+-- Dumping data for table {{ .Name }}
 --
 LOCK TABLES {{ .Name }} WRITE;
 /*!40000 ALTER TABLE {{ .Name }} DISABLE KEYS */;
@@ -83,7 +83,7 @@ func MySqlDump(db *sql.DB, writer io.Writer) (error) {
 		return err
 	}
 
-	// Get sql for each MySqlTable
+	// Get sql for each table
 	for _, name := range tables {
 		if t, err := createTable(db, name); err == nil {
 			data.Tables = append(data.Tables, t)
@@ -110,7 +110,7 @@ func MySqlDump(db *sql.DB, writer io.Writer) (error) {
 func getTables(db *sql.DB) ([]string, error) {
 	tables := make([]string, 0)
 
-	// Get MySqlTable list
+	// Get table list
 	rows, err := db.Query("SHOW TABLES")
 	if err != nil {
 		return tables, err
@@ -152,7 +152,7 @@ func createTable(db *sql.DB, name string) (*mySqlTable, error) {
 }
 
 func createTableSQL(db *sql.DB, name string) (string, error) {
-	// Get MySqlTable creation SQL
+	// Get table creation SQL
 	var table_return sql.NullString
 	var table_sql sql.NullString
 	err := db.QueryRow("SHOW CREATE TABLE " + name).Scan(&table_return, &table_sql)
@@ -161,7 +161,7 @@ func createTableSQL(db *sql.DB, name string) (string, error) {
 		return "", err
 	}
 	if table_return.String != name {
-		return "", errors.New("Returned MySqlTable is not the same as requested MySqlTable")
+		return "", errors.New("Returned table is not the same as requested table")
 	}
 
 	return table_sql.String, nil
@@ -181,7 +181,7 @@ func createTableValues(db *sql.DB, name string) (string, error) {
 		return "", err
 	}
 	if len(columns) == 0 {
-		return "", errors.New("No columns in MySqlTable " + name + ".")
+		return "", errors.New("No columns in table " + name + ".")
 	}
 
 	// Read data
