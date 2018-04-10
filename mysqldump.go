@@ -5,10 +5,10 @@ package go_utils
 import (
 	"database/sql"
 	"errors"
+	"io"
 	"strings"
 	"text/template"
 	"time"
-	"io"
 )
 
 type mySqlTable struct {
@@ -64,7 +64,7 @@ UNLOCK TABLES;
 `
 
 // Creates a MYSQL Dump based on the options supplied through the dumper.
-func MySqlDump(db *sql.DB, writer io.Writer) (error) {
+func MySqlDump(db *sql.DB, writer io.Writer) error {
 	data := mySqlDumpData{
 		DumpVersion: version,
 		Tables:      make([]*mySqlTable, 0),
@@ -155,7 +155,7 @@ func createTableSQL(db *sql.DB, name string) (string, error) {
 	// Get table creation SQL
 	var table_return sql.NullString
 	var table_sql sql.NullString
-	err := db.QueryRow("SHOW CREATE TABLE " + name).Scan(&table_return, &table_sql)
+	err := db.QueryRow("SHOW CREATE TABLE "+name).Scan(&table_return, &table_sql)
 
 	if err != nil {
 		return "", err

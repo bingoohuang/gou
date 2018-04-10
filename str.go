@@ -1,8 +1,8 @@
 package go_utils
 
 import (
-	"unicode"
 	"strings"
+	"unicode"
 )
 
 func FirstWord(value string) string {

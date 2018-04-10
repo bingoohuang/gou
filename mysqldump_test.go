@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"bytes"
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestGetTablesOk(t *testing.T) {
