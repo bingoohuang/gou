@@ -11,22 +11,9 @@ import (
 	"time"
 )
 
-type mySqlTable struct {
-	Name   string
-	SQL    string
-	Values string
-}
-
-type mySqlDumpData struct {
-	DumpVersion   string
-	ServerVersion string
-	Tables        []*mySqlTable
-	CompleteTime  string
-}
-
 const version = "0.2.2"
 
-const tmpl = `-- Go SQL Dump {{ .DumpVersion }}
+const headerTmpl = `-- Go SQL Dump {{ .DumpVersion }}
 --
 -- ------------------------------------------------------
 -- Server version	{{ .ServerVersion }}
@@ -40,7 +27,9 @@ const tmpl = `-- Go SQL Dump {{ .DumpVersion }}
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-{{range .Tables}}
+`
+
+const createTableTmpl = `
 --
 -- Table structure for table {{ .Name }}
 --
@@ -48,32 +37,37 @@ DROP TABLE IF EXISTS {{ .Name }};
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 {{ .SQL }};
-/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET character_set_client = @saved_cs_client */;`
+
+const tableDataTmplStart = `
 --
 -- Dumping data for table {{ .Name }}
 --
 LOCK TABLES {{ .Name }} WRITE;
 /*!40000 ALTER TABLE {{ .Name }} DISABLE KEYS */;
-{{ if .Values }}
-INSERT INTO {{ .Name }} VALUES {{ .Values }};
-{{ end }}
+
+INSERT INTO {{ .Name }} VALUES `
+const tableDataTmplEnd = `;
+
 /*!40000 ALTER TABLE {{ .Name }} ENABLE KEYS */;
 UNLOCK TABLES;
-{{ end }}
--- Dump completed on {{ .CompleteTime }}
+
 `
+const tailTempl = `-- Dump completed on {{ .CompleteTime }} `
 
 // Creates a MYSQL Dump based on the options supplied through the dumper.
 func MySqlDump(db *sql.DB, writer io.Writer) error {
-	data := mySqlDumpData{
-		DumpVersion: version,
-		Tables:      make([]*mySqlTable, 0),
+	// Get server version
+	serverVersion, err := getServerVersion(db)
+	if err != nil {
+		return err
 	}
 
-	var err error = nil
-
-	// Get server version
-	if data.ServerVersion, err = getServerVersion(db); err != nil {
+	t, err := template.New("mysqldump_header").Parse(headerTmpl)
+	if err != nil {
+		return err
+	}
+	if err = t.Execute(writer, struct{ DumpVersion, ServerVersion string }{DumpVersion: version, ServerVersion: serverVersion}); err != nil {
 		return err
 	}
 
@@ -83,24 +77,23 @@ func MySqlDump(db *sql.DB, writer io.Writer) error {
 		return err
 	}
 
+	ct, _ := template.New("mysqldump_createTable").Parse(createTableTmpl)
+	ds, _ := template.New("mysqldump_tableDataStart").Parse(tableDataTmplStart)
+	de, _ := template.New("mysqldump_tableDataEnd").Parse(tableDataTmplEnd)
+
 	// Get sql for each table
 	for _, name := range tables {
-		if t, err := createTable(db, name); err == nil {
-			data.Tables = append(data.Tables, t)
-		} else {
+		if err := createTable(ct, ds, de, writer, db, name); err != nil {
 			return err
 		}
 	}
 
-	// Set complete time
-	data.CompleteTime = time.Now().String()
-
 	// Write MySqlDump to file
-	t, err := template.New("mysqldump").Parse(tmpl)
+	t, err = template.New("mysqldump-tail").Parse(tailTempl)
 	if err != nil {
 		return err
 	}
-	if err = t.Execute(writer, data); err != nil {
+	if err = t.Execute(writer, struct{ CompleteTime string }{CompleteTime: time.Now().String(),}); err != nil {
 		return err
 	}
 
@@ -136,83 +129,95 @@ func getServerVersion(db *sql.DB) (string, error) {
 	return server_version.String, nil
 }
 
-func createTable(db *sql.DB, name string) (*mySqlTable, error) {
-	var err error
-	t := &mySqlTable{Name: name}
-
-	if t.SQL, err = createTableSQL(db, name); err != nil {
-		return nil, err
+func createTable(ct, ds, de *template.Template, writer io.Writer, db *sql.DB, name string) (error) {
+	sql, err := createTableSQL(db, name)
+	if err != nil {
+		return err
 	}
 
-	if t.Values, err = createTableValues(db, name); err != nil {
-		return nil, err
+	if err = ct.Execute(writer, struct{ Name, SQL string }{Name: "`" + name + "`", SQL: sql}); err != nil {
+		return err
 	}
 
-	return t, nil
+	if err = createTableValues(ds, de, writer, db, name); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createTableSQL(db *sql.DB, name string) (string, error) {
-	// Get table creation SQL
 	var table_return sql.NullString
 	var table_sql sql.NullString
-	err := db.QueryRow("SHOW CREATE TABLE "+name).Scan(&table_return, &table_sql)
+	err := db.QueryRow("SHOW CREATE TABLE " + name).Scan(&table_return, &table_sql)
 
 	if err != nil {
 		return "", err
 	}
 	if table_return.String != name {
-		return "", errors.New("Returned table is not the same as requested table")
+		return "", errors.New("returned table is not the same as requested table")
 	}
 
 	return table_sql.String, nil
 }
 
-func createTableValues(db *sql.DB, name string) (string, error) {
+func createTableValues(ds, de *template.Template, writer io.Writer, db *sql.DB, name string) (error) {
 	// Get Data
 	rows, err := db.Query("SELECT * FROM " + name)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer rows.Close()
 
 	// Get columns
 	columns, err := rows.Columns()
 	if err != nil {
-		return "", err
+		return err
 	}
 	if len(columns) == 0 {
-		return "", errors.New("No columns in table " + name + ".")
+		return errors.New("no columns in table " + name + ".")
 	}
 
-	// Read data
-	data_text := make([]string, 0)
+	rowsIndex := 0
 	for rows.Next() {
-		// Init temp data storage
-
-		//ptrs := make([]interface{}, len(columns))
-		//var ptrs []interface {} = make([]*sql.NullString, len(columns))
-
 		data := make([]*sql.NullString, len(columns))
 		ptrs := make([]interface{}, len(columns))
-		for i, _ := range data {
+		for i := range data {
 			ptrs[i] = &data[i]
 		}
 
 		// Read data
 		if err := rows.Scan(ptrs...); err != nil {
-			return "", err
+			return err
 		}
 
-		dataStrings := make([]string, len(columns))
+		if rowsIndex == 0 {
+			if err = ds.Execute(writer, struct{ Name string }{Name: "`" + name + "`"}); err != nil {
+				return err
+			}
+		}
 
+		rowsIndex++
+
+		dataStrings := make([]string, len(columns))
 		for key, value := range data {
 			if value != nil && value.Valid {
 				dataStrings[key] = value.String
 			}
 		}
 
-		data_text = append(data_text, "('"+strings.Join(dataStrings, "','")+"')")
+		if rowsIndex > 1 {
+			writer.Write([]byte(","))
+		}
+
+		writer.Write([]byte("('" + strings.Join(dataStrings, "','") + "')"))
 	}
 
-	return strings.Join(data_text, ","), rows.Err()
+	if rowsIndex > 0 {
+		if err = de.Execute(writer, struct{ Name string }{Name: "`" + name + "`"}); err != nil {
+			return err
+		}
+	}
+
+	return rows.Err()
 }

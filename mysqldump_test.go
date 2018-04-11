@@ -8,6 +8,7 @@ import (
 
 	"bytes"
 	"github.com/DATA-DOG/go-sqlmock"
+	"text/template"
 )
 
 func TestGetTablesOk(t *testing.T) {
@@ -148,7 +149,11 @@ func TestCreateTableValuesOk(t *testing.T) {
 
 	mock.ExpectQuery("^SELECT (.+) FROM test$").WillReturnRows(rows)
 
-	result, err := createTableValues(db, "test")
+	ds, _ := template.New("mysqldump_tableDataStart").Parse(tableDataTmplStart)
+	de, _ := template.New("mysqldump_tableDataEnd").Parse(tableDataTmplEnd)
+
+	var b bytes.Buffer
+	err = createTableValues(ds, de, &b, db, "test")
 	if err != nil {
 		t.Errorf("error was not expected while updating stats: %s", err)
 	}
@@ -158,8 +163,9 @@ func TestCreateTableValuesOk(t *testing.T) {
 		t.Errorf("there were unfulfilled expections: %s", err)
 	}
 
-	expectedResult := "('1','test@test.de','Test Name 1'),('2','test2@test.de','Test Name 2')"
+	expectedResult :="\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','test@test.de','Test Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
 
+	result := b.String()
 	if !reflect.DeepEqual(result, expectedResult) {
 		t.Fatalf("expected %#v, got %#v", expectedResult, result)
 	}
@@ -179,7 +185,11 @@ func TestCreateTableValuesNil(t *testing.T) {
 
 	mock.ExpectQuery("^SELECT (.+) FROM test$").WillReturnRows(rows)
 
-	result, err := createTableValues(db, "test")
+	ds, _ := template.New("mysqldump_tableDataStart").Parse(tableDataTmplStart)
+	de, _ := template.New("mysqldump_tableDataEnd").Parse(tableDataTmplEnd)
+
+	var b bytes.Buffer
+	err = createTableValues(ds, de, &b, db, "test")
 	if err != nil {
 		t.Errorf("error was not expected while updating stats: %s", err)
 	}
@@ -189,8 +199,9 @@ func TestCreateTableValuesNil(t *testing.T) {
 		t.Errorf("there were unfulfilled expections: %s", err)
 	}
 
-	expectedResult := "('1','','Test Name 1'),('2','test2@test.de','Test Name 2')"
+	expectedResult := "\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
 
+	result := b.String()
 	if !reflect.DeepEqual(result, expectedResult) {
 		t.Fatalf("expected %#v, got %#v", expectedResult, result)
 	}
@@ -214,7 +225,12 @@ func TestCreateTableOk(t *testing.T) {
 	mock.ExpectQuery("^SHOW CREATE TABLE Test_Table$").WillReturnRows(createTableRows)
 	mock.ExpectQuery("^SELECT (.+) FROM Test_Table$").WillReturnRows(createTableValueRows)
 
-	result, err := createTable(db, "Test_Table")
+	ct, _ := template.New("mysqldump_createTable").Parse(createTableTmpl)
+	ds, _ := template.New("mysqldump_tableDataStart").Parse(tableDataTmplStart)
+	de, _ := template.New("mysqldump_tableDataEnd").Parse(tableDataTmplEnd)
+
+	var b bytes.Buffer
+	err = createTable(ct, ds, de, &b, db, "Test_Table")
 	if err != nil {
 		t.Errorf("error was not expected while updating stats: %s", err)
 	}
@@ -224,12 +240,28 @@ func TestCreateTableOk(t *testing.T) {
 		t.Errorf("there were unfulfilled expections: %s", err)
 	}
 
-	expectedResult := &mySqlTable{
-		Name:   "Test_Table",
-		SQL:    "CREATE TABLE 'Test_Table' (`id` int(11) NOT NULL AUTO_INCREMENT,`s` char(60) DEFAULT NULL, PRIMARY KEY (`id`))ENGINE=InnoDB DEFAULT CHARSET=latin1",
-		Values: "('1','','Test Name 1'),('2','test2@test.de','Test Name 2')",
-	}
+	result := b.String()
 
+	expectedResult :="\n" +
+		"--\n" +
+		"-- Table structure for table `Test_Table`\n" +
+		"--\n" +
+		"DROP TABLE IF EXISTS `Test_Table`;\n" +
+		"/*!40101 SET @saved_cs_client     = @@character_set_client */;\n" +
+		"/*!40101 SET character_set_client = utf8 */;\n" +
+		"CREATE TABLE 'Test_Table' (`id` int(11) NOT NULL AUTO_INCREMENT,`s` char(60) DEFAULT NULL, PRIMARY KEY (`id`))ENGINE=InnoDB DEFAULT CHARSET=latin1;\n" +
+		"/*!40101 SET character_set_client = @saved_cs_client */;\n" +
+		"--\n" +
+		"-- Dumping data for table `Test_Table`\n" +
+		"--\n" +
+		"LOCK TABLES `Test_Table` WRITE;\n" +
+		"/*!40000 ALTER TABLE `Test_Table` DISABLE KEYS */;\n" +
+		"\n" +
+		"INSERT INTO `Test_Table` VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');\n" +
+		"\n" +
+		"/*!40000 ALTER TABLE `Test_Table` ENABLE KEYS */;\n" +
+		"UNLOCK TABLES;\n" +
+		"\n"
 	if !reflect.DeepEqual(result, expectedResult) {
 		t.Fatalf("expected %#v, got %#v", expectedResult, result)
 	}
@@ -290,22 +322,22 @@ func TestDumpOk(t *testing.T) {
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table Test_Table
+-- Table structure for table \Test_Table\
 --
-DROP TABLE IF EXISTS Test_Table;
+DROP TABLE IF EXISTS \Test_Table\;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE 'Test_Table' (\id\ int(11) NOT NULL AUTO_INCREMENT,\email\ char(60) DEFAULT NULL, \name\ char(60), PRIMARY KEY (\id\))ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 --
--- Dumping data for table Test_Table
+-- Dumping data for table \Test_Table\
 --
-LOCK TABLES Test_Table WRITE;
-/*!40000 ALTER TABLE Test_Table DISABLE KEYS */;
+LOCK TABLES \Test_Table\ WRITE;
+/*!40000 ALTER TABLE \Test_Table\ DISABLE KEYS */;
 
-INSERT INTO Test_Table VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');
+INSERT INTO \Test_Table\ VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');
 
-/*!40000 ALTER TABLE Test_Table ENABLE KEYS */;
+/*!40000 ALTER TABLE \Test_Table\ ENABLE KEYS */;
 UNLOCK TABLES;
 
 `
