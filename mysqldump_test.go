@@ -144,7 +144,7 @@ func TestCreateTableValuesOk(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{"id", "email", "name"}).
-		AddRow(1, "test@test.de", "Test Name 1").
+		AddRow(1, "test@test.de", "Test' Name 1").
 		AddRow(2, "test2@test.de", "Test Name 2")
 
 	mock.ExpectQuery("^SELECT (.+) FROM test$").WillReturnRows(rows)
@@ -163,7 +163,7 @@ func TestCreateTableValuesOk(t *testing.T) {
 		t.Errorf("there were unfulfilled expections: %s", err)
 	}
 
-	expectedResult :="\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','test@test.de','Test Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
+	expectedResult :="\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','test@test.de','Test'' Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
 
 	result := b.String()
 	if !reflect.DeepEqual(result, expectedResult) {
@@ -199,7 +199,7 @@ func TestCreateTableValuesNil(t *testing.T) {
 		t.Errorf("there were unfulfilled expections: %s", err)
 	}
 
-	expectedResult := "\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
+	expectedResult := "\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1',null,'Test Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
 
 	result := b.String()
 	if !reflect.DeepEqual(result, expectedResult) {
@@ -257,7 +257,7 @@ func TestCreateTableOk(t *testing.T) {
 		"LOCK TABLES `Test_Table` WRITE;\n" +
 		"/*!40000 ALTER TABLE `Test_Table` DISABLE KEYS */;\n" +
 		"\n" +
-		"INSERT INTO `Test_Table` VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');\n" +
+		"INSERT INTO `Test_Table` VALUES ('1',null,'Test Name 1'),('2','test2@test.de','Test Name 2');\n" +
 		"\n" +
 		"/*!40000 ALTER TABLE `Test_Table` ENABLE KEYS */;\n" +
 		"UNLOCK TABLES;\n" +
@@ -335,7 +335,7 @@ CREATE TABLE 'Test_Table' (\id\ int(11) NOT NULL AUTO_INCREMENT,\email\ char(60)
 LOCK TABLES \Test_Table\ WRITE;
 /*!40000 ALTER TABLE \Test_Table\ DISABLE KEYS */;
 
-INSERT INTO \Test_Table\ VALUES ('1','','Test Name 1'),('2','test2@test.de','Test Name 2');
+INSERT INTO \Test_Table\ VALUES ('1',null,'Test Name 1'),('2','test2@test.de','Test Name 2');
 
 /*!40000 ALTER TABLE \Test_Table\ ENABLE KEYS */;
 UNLOCK TABLES;

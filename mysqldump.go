@@ -202,7 +202,9 @@ func createTableValues(ds, de *template.Template, writer io.Writer, db *sql.DB, 
 		dataStrings := make([]string, len(columns))
 		for key, value := range data {
 			if value != nil && value.Valid {
-				dataStrings[key] = value.String
+				dataStrings[key] = "'" + strings.Replace(value.String, "'", "''", -1) + "'"
+			} else {
+				dataStrings[key] = "null"
 			}
 		}
 
@@ -210,7 +212,7 @@ func createTableValues(ds, de *template.Template, writer io.Writer, db *sql.DB, 
 			writer.Write([]byte(","))
 		}
 
-		writer.Write([]byte("('" + strings.Join(dataStrings, "','") + "')"))
+		writer.Write([]byte("(" + strings.Join(dataStrings, ",") + ")"))
 	}
 
 	if rowsIndex > 0 {
