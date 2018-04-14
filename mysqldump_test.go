@@ -163,7 +163,7 @@ func TestCreateTableValuesOk(t *testing.T) {
 		t.Errorf("there were unfulfilled expections: %s", err)
 	}
 
-	expectedResult :="\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','test@test.de','Test'' Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
+	expectedResult := "\n--\n-- Dumping data for table `test`\n--\nLOCK TABLES `test` WRITE;\n/*!40000 ALTER TABLE `test` DISABLE KEYS */;\n\nINSERT INTO `test` VALUES ('1','test@test.de','Test'' Name 1'),('2','test2@test.de','Test Name 2');\n\n/*!40000 ALTER TABLE `test` ENABLE KEYS */;\nUNLOCK TABLES;\n\n"
 
 	result := b.String()
 	if !reflect.DeepEqual(result, expectedResult) {
@@ -242,7 +242,7 @@ func TestCreateTableOk(t *testing.T) {
 
 	result := b.String()
 
-	expectedResult :="\n" +
+	expectedResult := "\n" +
 		"--\n" +
 		"-- Table structure for table `Test_Table`\n" +
 		"--\n" +

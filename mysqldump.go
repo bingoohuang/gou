@@ -93,7 +93,7 @@ func MySqlDump(db *sql.DB, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if err = t.Execute(writer, struct{ CompleteTime string }{CompleteTime: time.Now().String(),}); err != nil {
+	if err = t.Execute(writer, struct{ CompleteTime string }{CompleteTime: time.Now().String()}); err != nil {
 		return err
 	}
 
@@ -129,7 +129,7 @@ func getServerVersion(db *sql.DB) (string, error) {
 	return server_version.String, nil
 }
 
-func createTable(ct, ds, de *template.Template, writer io.Writer, db *sql.DB, name string) (error) {
+func createTable(ct, ds, de *template.Template, writer io.Writer, db *sql.DB, name string) error {
 	sql, err := createTableSQL(db, name)
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func createTable(ct, ds, de *template.Template, writer io.Writer, db *sql.DB, na
 func createTableSQL(db *sql.DB, name string) (string, error) {
 	var table_return sql.NullString
 	var table_sql sql.NullString
-	err := db.QueryRow("SHOW CREATE TABLE " + name).Scan(&table_return, &table_sql)
+	err := db.QueryRow("SHOW CREATE TABLE "+name).Scan(&table_return, &table_sql)
 
 	if err != nil {
 		return "", err
@@ -161,7 +161,7 @@ func createTableSQL(db *sql.DB, name string) (string, error) {
 	return table_sql.String, nil
 }
 
-func createTableValues(ds, de *template.Template, writer io.Writer, db *sql.DB, name string) (error) {
+func createTableValues(ds, de *template.Template, writer io.Writer, db *sql.DB, name string) error {
 	// Get Data
 	rows, err := db.Query("SELECT * FROM " + name)
 	if err != nil {

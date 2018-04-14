@@ -5,20 +5,20 @@ import (
 	"unicode/utf8"
 )
 
-func SplitSqls(sqls string, seperate rune) []string {
+func SplitSqls(sqls string, separate rune) []string {
 	subSqls := make([]string, 0)
 
 	inQuoted := false
 	pos := 0
-	len := len(sqls)
+	sqlsLen := len(sqls)
 
-	for i, w := 0, 0; i < len; i += w {
-		runeValue, width := utf8.DecodeRuneInString(sqls[i:])
-		w = width
+	var runeValue rune
+	for i, w := 0, 0; i < sqlsLen; i += w {
+		runeValue, w = utf8.DecodeRuneInString(sqls[i:])
 
 		var nextRuneValue rune
 		nextWidth := 0
-		if i+w < len {
+		if i+w < sqlsLen {
 			nextRuneValue, nextWidth = utf8.DecodeRuneInString(sqls[i+w:])
 		}
 
@@ -27,13 +27,12 @@ func SplitSqls(sqls string, seperate rune) []string {
 		if runeValue == '\\' {
 			jumpNext = true
 		} else if runeValue == '\'' {
-
 			if inQuoted && nextWidth > 0 && nextRuneValue == '\'' {
 				jumpNext = true // jump escape for literal apostrophe, or single quote
 			} else {
 				inQuoted = !inQuoted
 			}
-		} else if !inQuoted && runeValue == seperate {
+		} else if !inQuoted && runeValue == separate {
 			subSqls = tryAddSql(subSqls, sqls[pos:i])
 			pos = i + w
 		}
@@ -43,7 +42,7 @@ func SplitSqls(sqls string, seperate rune) []string {
 		}
 	}
 
-	if pos < len {
+	if pos < sqlsLen {
 		subSqls = tryAddSql(subSqls, sqls[pos:])
 	}
 
