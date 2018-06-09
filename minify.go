@@ -6,6 +6,7 @@ import (
 	"github.com/tdewolff/minify/css"
 	"github.com/tdewolff/minify/html"
 	"github.com/tdewolff/minify/js"
+	"bytes"
 )
 
 func MinifyHtml(htmlString string, devMode bool) string {
@@ -48,4 +49,24 @@ func MinifyJs(jsString string, devMode bool) string {
 	}
 
 	return minifiedJs
+}
+
+func MergeJs(mustAsset func(name string) []byte, statics ...string) string {
+	var scripts bytes.Buffer
+	for _, static := range statics {
+		scripts.Write(mustAsset("res/" + static))
+		scripts.Write([]byte(";"))
+	}
+
+	return scripts.String()
+}
+
+func MergeCss(mustAsset func(name string) []byte, statics ...string) string {
+	var scripts bytes.Buffer
+	for _, static := range statics {
+		scripts.Write(mustAsset("res/" + static))
+		scripts.Write([]byte("\n"))
+	}
+
+	return scripts.String()
 }
