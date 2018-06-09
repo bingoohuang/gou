@@ -34,6 +34,23 @@ func WriteCookie(w http.ResponseWriter, encryptKey, cookieName string, cookieVal
 	return nil
 }
 
+func WriteDomainCookie(w http.ResponseWriter, domain, encryptKey, cookieName string, cookieValue CookieValue) error {
+	cookieVal, err := json.Marshal(cookieValue)
+	if err != nil {
+		return err
+	}
+
+	cipher, err := CBCEncrypt(encryptKey, string(cookieVal))
+	if err != nil {
+		return err
+	}
+
+	cookie := http.Cookie{Domain: domain, Name: cookieName, Value: cipher, Path: "/", MaxAge: 86400}
+	http.SetCookie(w, &cookie)
+
+	return nil
+}
+
 func ReadCookie(r *http.Request, encryptKey, cookieName string, cookieValue CookieValue) error {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
