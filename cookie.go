@@ -6,6 +6,10 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"fmt"
+	"net/url"
+	"context"
+	"flag"
 )
 
 func ClearCookie(w http.ResponseWriter, cookieName string) {
@@ -76,4 +80,53 @@ func ReadCookie(r *http.Request, encryptKey, cookieName string, cookieValue Cook
 	}
 
 	return nil
+}
+
+type CookieValueImpl struct {
+	UserId    string
+	Name      string
+	Avatar    string
+	CsrfToken string
+	Expired   time.Time
+}
+
+func (t *CookieValueImpl) ExpiredTime() time.Time {
+	return t.Expired
+}
+
+type MustAuthParam struct {
+	EncryptKey  *string
+	CookieName  *string
+	RedirectUri *string
+	LocalUrl    *string
+	ForceLogin  *bool
+}
+
+func PrepareMustAuthFlag(param *MustAuthParam) {
+	param.EncryptKey = flag.String("key", "", "key to encryption or decryption")
+	param.CookieName = flag.String("cookieName", "i-raiyee-cn-auth", "cookieName")
+	param.RedirectUri = flag.String("redirectUri", "", "redirectUri")
+	param.LocalUrl = flag.String("localUrl", "", "localUrl")
+	param.ForceLogin = flag.Bool("forceLogin", false, "forceLogin required")
+}
+
+func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
+	if !*param.ForceLogin {
+		return fn
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie := CookieValueImpl{}
+		ReadCookie(r, *param.EncryptKey, *param.CookieName, &cookie)
+		fmt.Print("cookie:", cookie)
+		if cookie.Name != "" {
+			ctx := context.WithValue(r.Context(), "CookieValue", &cookie)
+			fn.ServeHTTP(w, r.WithContext(ctx))
+
+			return
+		}
+
+		urlx := *param.RedirectUri + "?redirect=" + url.QueryEscape(*param.LocalUrl)
+		http.Redirect(w, r, urlx, 302)
+	}
 }
