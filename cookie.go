@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"fmt"
 	"net/url"
 	"context"
 	"flag"
@@ -117,9 +116,8 @@ func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie := CookieValueImpl{}
-		ReadCookie(r, *param.EncryptKey, *param.CookieName, &cookie)
-		fmt.Print("cookie:", cookie)
-		if cookie.Name != "" {
+		err := ReadCookie(r, *param.EncryptKey, *param.CookieName, &cookie)
+		if err == nil && cookie.Name != "" {
 			ctx := context.WithValue(r.Context(), "CookieValue", &cookie)
 			fn.ServeHTTP(w, r.WithContext(ctx))
 
