@@ -31,7 +31,8 @@ func WriteCookie(w http.ResponseWriter, encryptKey, cookieName string, cookieVal
 		return err
 	}
 
-	cookie := http.Cookie{Name: cookieName, Value: cipher, Path: "/", MaxAge: 86400}
+	maxAge := cookieValue.ExpiredTime().Unix() - time.Now().Unix()
+	cookie := http.Cookie{Name: cookieName, Value: cipher, Path: "/", MaxAge: int(maxAge)}
 	http.SetCookie(w, &cookie)
 
 	return nil
@@ -48,7 +49,8 @@ func WriteDomainCookie(w http.ResponseWriter, domain, encryptKey, cookieName str
 		return err
 	}
 
-	cookie := http.Cookie{Domain: domain, Name: cookieName, Value: cipher, Path: "/", MaxAge: 86400}
+	maxAge := cookieValue.ExpiredTime().Unix() - time.Now().Unix()
+	cookie := http.Cookie{Domain: domain, Name: cookieName, Value: cipher, Path: "/", MaxAge: int(maxAge)}
 	http.SetCookie(w, &cookie)
 
 	return nil
