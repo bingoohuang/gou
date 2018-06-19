@@ -7,6 +7,7 @@ import (
 	"github.com/tdewolff/minify/html"
 	"github.com/tdewolff/minify/js"
 	"bytes"
+	"strings"
 )
 
 func MinifyHtml(htmlString string, devMode bool) string {
@@ -51,7 +52,7 @@ func MinifyJs(jsString string, devMode bool) string {
 	return minifiedJs
 }
 
-func MergeJs(mustAsset func(name string) []byte, statics ...string) string {
+func MergeResJs(mustAsset func(name string) []byte, statics ...string) string {
 	var scripts bytes.Buffer
 	for _, static := range statics {
 		scripts.Write(mustAsset("res/" + static))
@@ -61,7 +62,7 @@ func MergeJs(mustAsset func(name string) []byte, statics ...string) string {
 	return scripts.String()
 }
 
-func MergeCss(mustAsset func(name string) []byte, statics ...string) string {
+func MergeResCss(mustAsset func(name string) []byte, statics ...string) string {
 	var scripts bytes.Buffer
 	for _, static := range statics {
 		scripts.Write(mustAsset("res/" + static))
@@ -69,4 +70,35 @@ func MergeCss(mustAsset func(name string) []byte, statics ...string) string {
 	}
 
 	return scripts.String()
+}
+
+func MergeJs(mustAsset func(name string) []byte, statics []string) string {
+	var scripts bytes.Buffer
+	for _, static := range statics {
+		scripts.Write(mustAsset(static))
+		scripts.Write([]byte(";"))
+	}
+
+	return scripts.String()
+}
+
+func MergeCss(mustAsset func(name string) []byte, statics []string) string {
+	var scripts bytes.Buffer
+	for _, static := range statics {
+		scripts.Write(mustAsset(static))
+		scripts.Write([]byte("\n"))
+	}
+
+	return scripts.String()
+}
+
+func FilterAssetNames(assetNames []string, suffix string) []string {
+	filtered := make([]string, 0)
+	for _, assetName := range assetNames {
+		if strings.HasSuffix(assetName, suffix) {
+			filtered = append(filtered, assetName)
+		}
+	}
+
+	return filtered
 }
