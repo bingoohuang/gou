@@ -111,6 +111,16 @@ func PrepareMustAuthFlag(param *MustAuthParam) {
 	param.ForceLogin = flag.Bool("forceLogin", false, "forceLogin required")
 }
 
+/*
+	fmt.Println(r.Proto)
+	// output:HTTP/1.1
+	fmt.Println(r.TLS)
+	// output: <nil>
+	fmt.Println(r.Host)
+	// output: localhost:9090
+	fmt.Println(r.RequestURI)
+	// output: /index?id=1
+ */
 func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
 	if !*param.ForceLogin {
 		return fn
@@ -122,11 +132,10 @@ func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
 		if err == nil && cookie.Name != "" {
 			ctx := context.WithValue(r.Context(), "CookieValue", &cookie)
 			fn.ServeHTTP(w, r.WithContext(ctx))
-
 			return
 		}
 
-		urlx := *param.RedirectUri + "?redirect=" + url.QueryEscape(*param.LocalUrl)
+		urlx := *param.RedirectUri + "?redirect=" + url.QueryEscape(*param.LocalUrl+r.RequestURI)
 		http.Redirect(w, r, urlx, 302)
 	}
 }

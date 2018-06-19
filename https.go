@@ -113,4 +113,10 @@ func HttpGet(url string) ([]byte, error) {
 	return respBody, nil
 }
 
+func HeadContentTypeHtml(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+}
 
+func HeadContentTypeJson(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+}
