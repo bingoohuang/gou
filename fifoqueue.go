@@ -81,6 +81,10 @@ func (s *FifoQueue) Last() interface{} {
 }
 
 // Size returns the actual deque size
+func (s *FifoQueue) Capacity() int {
+	return s.capacity
+}
+
 func (s *FifoQueue) Size() int {
 	return s.container.Len()
 }
