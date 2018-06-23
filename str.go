@@ -57,3 +57,22 @@ func ParseMapString(str string, separator, keyValueSeparator string) map[string]
 
 	return m
 }
+
+func IndexOf(word string, data []string) (int) {
+	for k, v := range data {
+		if word == v {
+			return k
+		}
+	}
+
+	return -1
+}
+
+func MapOf(arr []string) map[string]string {
+	result := make(map[string]string)
+	for i := 0; i+1 < len(arr); i += 2 {
+		result[arr[i]] = arr[i+1]
+	}
+	return result
+}
+
