@@ -138,7 +138,7 @@ func SendWxQyMsg(corpId, corpSecret, agentId, content string) (string, error) {
 	// 企业号可能会出于运营需要，提前使accesstoken失效，企业开发者也应实现accesstoken失效时重试获取的逻辑。
 	accessToken, err := GetAccessToken(corpId, corpSecret)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	msg := map[string]interface{}{
