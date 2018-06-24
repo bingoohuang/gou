@@ -130,3 +130,23 @@ func CreateWxQyLoginUrl(cropId, agentId, redirectUri, csrfToken string) string {
 //func redirectWxQyLogin(w http.ResponseWriter, r *http.Request, url string) {
 //	http.Redirect(w, r, url, 302) // Temporarily Move
 //}
+
+func SendWxQyMsg(corpId, corpSecret, agentId, content string) (string, error) {
+	// AccessToken是企业号的全局唯一票据，调用接口时需携带AccessToken。
+	// AccessToken需要用CorpID和Secret来换取，不同的Secret会返回不同的AccessToken。
+	// 正常情况下AccessToken有效期为7200秒，有效期内重复获取返回相同结果。access_token至少保留512字节的存储空间。
+	// 企业号可能会出于运营需要，提前使accesstoken失效，企业开发者也应实现accesstoken失效时重试获取的逻辑。
+	accessToken, err := GetAccessToken(corpId, corpSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := map[string]interface{}{
+		"touser": "@all", "toparty": "@all", "totag": "@all", "msgtype": "text", "agentid": agentId, "safe": 0,
+		"text": map[string]string{
+			"content": content,
+		},
+	}
+	_, err = HttpPost("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+accessToken, msg)
+	return accessToken, err
+}

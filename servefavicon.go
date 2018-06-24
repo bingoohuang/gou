@@ -1,9 +1,9 @@
 package go_utils
 
 import (
-	"net/http"
 	"bytes"
 	"io"
+	"net/http"
 	"os"
 )
 

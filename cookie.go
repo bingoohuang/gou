@@ -1,14 +1,14 @@
 package go_utils
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"flag"
 	"log"
 	"net/http"
-	"time"
 	"net/url"
-	"context"
-	"flag"
+	"time"
 )
 
 func ClearCookie(w http.ResponseWriter, cookieName string) {
@@ -120,7 +120,7 @@ func PrepareMustAuthFlag(param *MustAuthParam) {
 	// output: localhost:9090
 	fmt.Println(r.RequestURI)
 	// output: /index?id=1
- */
+*/
 func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
 	if !*param.ForceLogin {
 		return fn

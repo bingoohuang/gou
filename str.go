@@ -58,7 +58,7 @@ func ParseMapString(str string, separator, keyValueSeparator string) map[string]
 	return m
 }
 
-func IndexOf(word string, data []string) (int) {
+func IndexOf(word string, data []string) int {
 	for k, v := range data {
 		if word == v {
 			return k
@@ -75,4 +75,3 @@ func MapOf(arr []string) map[string]string {
 	}
 	return result
 }
-

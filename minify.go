@@ -1,12 +1,12 @@
 package go_utils
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
 	"github.com/tdewolff/minify/html"
 	"github.com/tdewolff/minify/js"
-	"bytes"
 	"strings"
 )
 
