@@ -96,19 +96,19 @@ func (t *CookieValueImpl) ExpiredTime() time.Time {
 }
 
 type MustAuthParam struct {
-	EncryptKey  *string
-	CookieName  *string
-	RedirectUri *string
-	LocalUrl    *string
-	ForceLogin  *bool
+	EncryptKey  string
+	CookieName  string
+	RedirectUri string
+	LocalUrl    string
+	ForceLogin  bool
 }
 
 func PrepareMustAuthFlag(param *MustAuthParam) {
-	param.EncryptKey = flag.String("key", "", "key to encryption or decryption")
-	param.CookieName = flag.String("cookieName", "i-raiyee-cn-auth", "cookieName")
-	param.RedirectUri = flag.String("redirectUri", "", "redirectUri")
-	param.LocalUrl = flag.String("localUrl", "", "localUrl")
-	param.ForceLogin = flag.Bool("forceLogin", false, "forceLogin required")
+	flag.StringVar(&param.EncryptKey, "key", "", "key to encryption or decryption")
+	flag.StringVar(&param.CookieName, "cookieName", "i-raiyee-cn-auth", "cookieName")
+	flag.StringVar(&param.RedirectUri, "redirectUri", "", "redirectUri")
+	flag.StringVar(&param.LocalUrl, "localUrl", "", "localUrl")
+	flag.BoolVar(&param.ForceLogin, "forceLogin", false, "forceLogin required")
 }
 
 /*
@@ -122,20 +122,20 @@ func PrepareMustAuthFlag(param *MustAuthParam) {
 	// output: /index?id=1
 */
 func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
-	if !*param.ForceLogin {
+	if !param.ForceLogin {
 		return fn
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie := CookieValueImpl{}
-		err := ReadCookie(r, *param.EncryptKey, *param.CookieName, &cookie)
+		err := ReadCookie(r, param.EncryptKey, param.CookieName, &cookie)
 		if err == nil && cookie.Name != "" {
 			ctx := context.WithValue(r.Context(), "CookieValue", &cookie)
 			fn.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
-		urlx := *param.RedirectUri + "?redirect=" + url.QueryEscape(*param.LocalUrl+r.RequestURI)
+		urlx := param.RedirectUri + "?redirect=" + url.QueryEscape(param.LocalUrl+r.RequestURI)
 		http.Redirect(w, r, urlx, 302)
 	}
 }
