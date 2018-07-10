@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"github.com/pkg/errors"
 	"io"
 	"os/exec"
 	"strings"
@@ -17,6 +18,9 @@ func ExecuteBashLiner(shellScripts string, liner func(line string) bool) error {
 	if err != nil {
 		return err
 	}
+
+	var eout bytes.Buffer
+	cmd.Stderr = &eout
 
 	cmd.Start()
 	defer cmd.Process.Kill()
@@ -35,6 +39,11 @@ func ExecuteBashLiner(shellScripts string, liner func(line string) bool) error {
 				return nil
 			}
 		}
+	}
+
+	eoutput := eout.String()
+	if eoutput != "" {
+		return errors.New(eoutput)
 	}
 
 	return nil

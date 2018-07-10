@@ -1,6 +1,8 @@
 package go_utils
 
 import (
+	"bytes"
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -74,4 +76,27 @@ func MapOf(arr []string) map[string]string {
 		result[arr[i]] = arr[i+1]
 	}
 	return result
+}
+
+func MapToString(m map[string]string) string {
+	b := new(bytes.Buffer)
+	fmt.Fprintf(b, "%v", m)
+	return b.String()
+}
+
+func SplitTrim(str, sep string) []string {
+	subs := strings.Split(str, sep)
+	ret := make([]string, 0)
+	for i, v := range subs {
+		v := strings.TrimSpace(v)
+		if len(subs[i]) > 0 {
+			ret = append(ret, v)
+		}
+	}
+
+	return ret
+}
+
+func EmptyThen(s, then string) string {
+	return IfElse(s != "", s, then)
 }
