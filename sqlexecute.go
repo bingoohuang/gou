@@ -43,6 +43,13 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), IsQuerySql: isQuerySql}
 	}
 
+	columnTypes, _ := rows.ColumnTypes()
+	columnLobs := make([]bool, 0)
+	for i := 0; i < len(columnTypes); i++ {
+		columnType := columnTypes[i]
+		columnLobs[i] = strings.Contains(columnType.DatabaseTypeName(), "lob")
+	}
+
 	columnSize := len(columns)
 	data := make([][]string, 0)
 	for row := 0; rows.Next() && (maxRows == 0 || row < maxRows); row++ {
@@ -58,6 +65,9 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		values := make([]string, columnSize)
 		for i, v := range holders {
 			values[i] = IfElse(v.Valid, v.String, "(null)")
+			if columnLobs[i] && v.Valid {
+				values[i] = "(" + columnTypes[i].DatabaseTypeName() + ")"
+			}
 		}
 
 		data = append(data, values)
