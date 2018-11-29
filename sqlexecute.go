@@ -43,14 +43,14 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 		return ExecuteSqlResult{Error: err, CostTime: time.Since(start), IsQuerySql: isQuerySql}
 	}
 
+	columnSize := len(columns)
+
 	columnTypes, _ := rows.ColumnTypes()
-	columnLobs := make([]bool, 0)
+	columnLobs := make([]bool, columnSize)
 	for i := 0; i < len(columnTypes); i++ {
-		columnType := columnTypes[i]
-		columnLobs[i] = strings.Contains(columnType.DatabaseTypeName(), "lob")
+		columnLobs[i] = strings.Contains(columnTypes[i].DatabaseTypeName(), "lob")
 	}
 
-	columnSize := len(columns)
 	data := make([][]string, 0)
 	for row := 0; rows.Next() && (maxRows == 0 || row < maxRows); row++ {
 		holders := make([]sql.NullString, columnSize)
