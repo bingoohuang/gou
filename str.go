@@ -100,3 +100,7 @@ func SplitTrim(str, sep string) []string {
 func EmptyThen(s, then string) string {
 	return IfElse(s != "", s, then)
 }
+
+func ContainsIgnoreCase(a, b string) bool {
+	return strings.Contains(strings.ToUpper(a), strings.ToUpper(b))
+}
