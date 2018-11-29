@@ -48,6 +48,7 @@ func ExecuteSql(db *sql.DB, oneSql string, maxRows int) ExecuteSqlResult {
 	columnTypes, _ := rows.ColumnTypes()
 	columnLobs := make([]bool, columnSize)
 	for i := 0; i < len(columnTypes); i++ {
+		fmt.Println("column type:", columnTypes[i].DatabaseTypeName())
 		columnLobs[i] = strings.Contains(columnTypes[i].DatabaseTypeName(), "lob")
 	}
 
