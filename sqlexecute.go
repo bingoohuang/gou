@@ -81,7 +81,7 @@ func IsQuerySql(sql string) bool {
 	switch firstWord {
 	case "INSERT", "DELETE", "UPDATE", "SET":
 		return false
-	case "SELECT", "SHOW", "DESC":
+	case "SELECT", "SHOW", "DESC", "EXPLAIN":
 		return true
 	default:
 		return false
