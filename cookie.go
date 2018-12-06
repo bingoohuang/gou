@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -135,7 +136,13 @@ func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
 			return
 		}
 
-		urlx := param.RedirectUri + "?redirect=" + url.QueryEscape(param.LocalUrl+r.RequestURI)
+		urlx := param.RedirectUri
+		if strings.Contains(param.RedirectUri, "?") {
+			urlx += "&"
+		} else {
+			urlx += "?"
+		}
+		urlx += url.QueryEscape(param.LocalUrl + r.RequestURI)
 		http.Redirect(w, r, urlx, 302)
 	}
 }
