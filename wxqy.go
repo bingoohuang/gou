@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 )
@@ -124,12 +125,8 @@ func GetAccessToken(corpId, corpSecret string) (string, error) {
 
 func CreateWxQyLoginUrl(cropId, agentId, redirectUri, csrfToken string) string {
 	return "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=" +
-		cropId + "&agentid=" + agentId + "&redirect_uri=" + redirectUri + "&state=" + csrfToken
+		cropId + "&agentid=" + agentId + "&redirect_uri=" + url.QueryEscape(redirectUri) + "&state=" + csrfToken
 }
-
-//func redirectWxQyLogin(w http.ResponseWriter, r *http.Request, url string) {
-//	http.Redirect(w, r, url, 302) // Temporarily Move
-//}
 
 func SendWxQyMsg(corpId, corpSecret, agentId, content string) (string, error) {
 	// AccessToken是企业号的全局唯一票据，调用接口时需携带AccessToken。
