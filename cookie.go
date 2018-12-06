@@ -142,6 +142,8 @@ func MustAuth(fn http.HandlerFunc, param MustAuthParam) http.HandlerFunc {
 		} else {
 			urlx += "?"
 		}
+
+		urlx += "cookie=" + param.CookieName + "&"
 		urlx += url.QueryEscape(param.LocalUrl + r.RequestURI)
 		http.Redirect(w, r, urlx, 302)
 	}
