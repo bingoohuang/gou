@@ -7,8 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"sync"
-	"time"
 )
 
 type WxLoginUserId struct {
@@ -84,25 +82,25 @@ type TokenResult struct {
 	ExpiresInSeconds int    `json:"expires_in"`
 }
 
-var (
-	accessToken            string
-	accessTokenExpiredTime time.Time
-	accessTokenMutex       sync.Mutex
-)
+//var (
+//	accessToken            string
+//	accessTokenExpiredTime time.Time
+//	accessTokenMutex       sync.Mutex
+//)
 
 func GetAccessToken(corpId, corpSecret string) (string, error) {
-	accessTokenMutex.Lock()
-	defer accessTokenMutex.Unlock()
-	if accessToken != "" && accessTokenExpiredTime.After(time.Now()) {
-		return accessToken, nil
-	}
+	//accessTokenMutex.Lock()
+	//defer accessTokenMutex.Unlock()
+	//if accessToken != "" && accessTokenExpiredTime.After(time.Now()) {
+	//	return accessToken, nil
+	//}
 
 	url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + corpId + "&corpsecret=" + corpSecret
 	log.Println("url:", url)
 	resp, err := http.Get(url)
 	log.Println("resp:", resp, ",err:", err)
 	if err != nil {
-		accessToken = ""
+		//accessToken = ""
 		return "", err
 	}
 
@@ -115,9 +113,11 @@ func GetAccessToken(corpId, corpSecret string) (string, error) {
 	var tokenResult TokenResult
 	json.Unmarshal(body, &tokenResult)
 	if tokenResult.ErrCode == 0 {
-		accessToken = tokenResult.AccessToken
-		accessTokenExpiredTime = time.Now().Add(time.Duration(tokenResult.ExpiresInSeconds) * time.Second)
-		return accessToken, nil
+		//accessToken = tokenResult.AccessToken
+		//accessTokenExpiredTime = time.Now().Add(time.Duration(tokenResult.ExpiresInSeconds) * time.Second)
+		//return accessToken, nil
+
+		return tokenResult.AccessToken, nil
 	}
 
 	return "", errors.New(tokenResult.ErrMsg)
