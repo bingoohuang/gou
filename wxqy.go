@@ -82,19 +82,7 @@ type TokenResult struct {
 	ExpiresInSeconds int    `json:"expires_in"`
 }
 
-//var (
-//	accessToken            string
-//	accessTokenExpiredTime time.Time
-//	accessTokenMutex       sync.Mutex
-//)
-
 func GetAccessToken(corpId, corpSecret string) (string, error) {
-	//accessTokenMutex.Lock()
-	//defer accessTokenMutex.Unlock()
-	//if accessToken != "" && accessTokenExpiredTime.After(time.Now()) {
-	//	return accessToken, nil
-	//}
-
 	url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + corpId + "&corpsecret=" + corpSecret
 	log.Println("url:", url)
 	resp, err := http.Get(url)
@@ -113,37 +101,23 @@ func GetAccessToken(corpId, corpSecret string) (string, error) {
 	var tokenResult TokenResult
 	json.Unmarshal(body, &tokenResult)
 	if tokenResult.ErrCode == 0 {
-		//accessToken = tokenResult.AccessToken
-		//accessTokenExpiredTime = time.Now().Add(time.Duration(tokenResult.ExpiresInSeconds) * time.Second)
-		//return accessToken, nil
-
 		return tokenResult.AccessToken, nil
 	}
 
 	return "", errors.New(tokenResult.ErrMsg)
 }
 
-func CreateWxQyLoginUrl(cropId, agentId, redirectUri, csrfToken string) string {
-	return "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=" +
-		cropId + "&agentid=" + agentId + "&redirect_uri=" + url.QueryEscape(redirectUri) + "&state=" + csrfToken
-}
-
-func SendWxQyMsg(corpId, corpSecret, agentId, content string) (string, error) {
-	// AccessToken是企业号的全局唯一票据，调用接口时需携带AccessToken。
-	// AccessToken需要用CorpID和Secret来换取，不同的Secret会返回不同的AccessToken。
-	// 正常情况下AccessToken有效期为7200秒，有效期内重复获取返回相同结果。access_token至少保留512字节的存储空间。
-	// 企业号可能会出于运营需要，提前使accesstoken失效，企业开发者也应实现accesstoken失效时重试获取的逻辑。
-	accessToken, err := GetAccessToken(corpId, corpSecret)
-	if err != nil {
-		return "", err
-	}
-
+func SendWxQyMsg(accessToken, agentId, content string) (string, error) {
 	msg := map[string]interface{}{
 		"touser": "@all", "toparty": "@all", "totag": "@all", "msgtype": "text", "agentid": agentId, "safe": 0,
 		"text": map[string]string{
 			"content": content,
 		},
 	}
-	_, err = HttpPost("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+accessToken, msg)
+	_, err := HttpPost("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+accessToken, msg)
 	return accessToken, err
+}
+func CreateWxQyLoginUrl(cropId, agentId, redirectUri, csrfToken string) string {
+	return "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=" +
+		cropId + "&agentid=" + agentId + "&redirect_uri=" + url.QueryEscape(redirectUri) + "&state=" + csrfToken
 }

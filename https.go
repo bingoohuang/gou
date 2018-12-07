@@ -101,6 +101,23 @@ func HttpPost(url string, requestBody interface{}) ([]byte, error) {
 	return respBody, nil
 }
 
+func HttpGetObject(url string, targetObject interface{}) error {
+	log.Println("url:", url)
+	resp, err := http.Get(url)
+	log.Println("resp:", resp, ",err:", err)
+	if err != nil {
+		return err
+	}
+
+	respBody := ReadObjectBytes(resp.Body)
+	err = json.Unmarshal(respBody, targetObject)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func HttpGet(url string) ([]byte, error) {
 	log.Println("url:", url)
 	resp, err := http.Get(url)
