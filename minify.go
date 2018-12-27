@@ -102,3 +102,20 @@ func FilterAssetNames(assetNames []string, suffix string) []string {
 
 	return filtered
 }
+
+func FilterAssetNamesOrdered(assetNames []string, suffix string, orderedNames ...string) []string {
+	filtered := make([]string, 0)
+
+	for _, assetName := range orderedNames {
+		if IndexOf(assetName+suffix, assetNames) >= 0 {
+			filtered = append(filtered, assetName)
+		}
+	}
+	for _, assetName := range assetNames {
+		if strings.HasSuffix(assetName, suffix) && IndexOf(strings.TrimSuffix(assetName, suffix), assetNames) < 0 {
+			filtered = append(filtered, assetName)
+		}
+	}
+
+	return filtered
+}
