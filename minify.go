@@ -103,12 +103,14 @@ func FilterAssetNames(assetNames []string, suffix string) []string {
 	return filtered
 }
 
+// 合并指定后缀名 suffix 的资源，并且通过 orderedNames 指定的顺序先合并，然后再合并 assetNames 中其它的资源。
+// 注意：orderedNames 中不要再包含后缀名
 func FilterAssetNamesOrdered(assetNames []string, suffix string, orderedNames ...string) []string {
 	filtered := make([]string, 0)
 
-	for _, assetName := range orderedNames {
-		if IndexOf(assetName+suffix, assetNames) >= 0 {
-			filtered = append(filtered, assetName)
+	for _, orderedName := range orderedNames {
+		if IndexOf(orderedName+suffix, assetNames) >= 0 {
+			filtered = append(filtered, orderedName+suffix)
 		}
 	}
 	for _, assetName := range assetNames {
