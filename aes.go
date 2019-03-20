@@ -24,6 +24,7 @@ func FixStrLength(s string, fixLen int) string {
 	return s
 }
 
+// CBCEncrypt encrypt original with key of either 16, 24, or 32 bytes
 func CBCEncrypt(strKey, strPlaintext string) (string, error) {
 	key := []byte(strKey)
 	plaintext := []byte(strPlaintext)
