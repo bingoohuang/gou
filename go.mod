@@ -5,8 +5,12 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.3.0
 	github.com/araddon/dateparse v0.0.0-20190510211750-d2ba70357e92
 	github.com/averagesecurityguy/random v0.0.0-20180326012618-37cce341d2af
+	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/gin-gonic/gin v1.4.0
 	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
+	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
+	github.com/jonboulle/clockwork v0.1.0 // indirect
+	github.com/lestrrat-go/envload v0.0.0-20180220234015-a3eb8ddeffcc // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.2.0+incompatible
 	github.com/lestrrat-go/strftime v0.0.0-20180821113735-8b31f9c59b0f // indirect
 	github.com/lunny/log v0.0.0-20160921050905-7887c61bf0de
@@ -19,8 +23,8 @@ require (
 	github.com/spf13/cast v1.3.0
 	github.com/stretchr/testify v1.3.0
 	github.com/tdewolff/minify v2.3.6+incompatible
-	github.com/tdewolff/minify/v2 v2.3.7
 	github.com/tdewolff/parse v2.3.3+incompatible // indirect
+	github.com/tebeka/strftime v0.0.0-20140926081919-3f9c7761e312 // indirect
 )
 
 replace github.com/tdewolff/parse => github.com/tdewolff/parse v0.0.0-20181024085210-fced451e0bed
