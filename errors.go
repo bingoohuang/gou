@@ -1,4 +1,4 @@
-package go_utils
+package gou
 
 func Error(err error) string {
 	if err == nil {

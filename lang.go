@@ -1,4 +1,4 @@
-package go_utils
+package gou
 
 func IntMax(a, b int) int {
 	if a > b {

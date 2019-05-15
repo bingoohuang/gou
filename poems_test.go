@@ -1,4 +1,4 @@
-package go_utils
+package gou
 
 import (
 	"github.com/stretchr/testify/assert"

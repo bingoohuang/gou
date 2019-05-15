@@ -1,4 +1,4 @@
-module github.com/bingoohuang/go-utils
+module github.com/bingoohuang/gou
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect

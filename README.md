@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bingoohuang/go-utils.svg?branch=master)](https://travis-ci.org/bingoohuang/go-utils)
+[![Build Status](https://travis-ci.org/bingoohuang/gou.svg?branch=master)](https://travis-ci.org/bingoohuang/gou)
 
 # Go Utilities
 
