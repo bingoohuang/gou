@@ -57,7 +57,7 @@ const tailTempl = `-- Dump completed on {{ .CompleteTime }} `
 
 // Creates a MYSQL Dump based on the options supplied through the dumper.
 func MySqlDump(db *sql.DB, writer io.Writer) error {
-	// Get server version
+	// UrlGet server version
 	serverVersion, err := getServerVersion(db)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func MySqlDump(db *sql.DB, writer io.Writer) error {
 		return err
 	}
 
-	// Get tables
+	// UrlGet tables
 	tables, err := getTables(db)
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func MySqlDump(db *sql.DB, writer io.Writer) error {
 	ds, _ := template.New("mysqldump_tableDataStart").Parse(tableDataTmplStart)
 	de, _ := template.New("mysqldump_tableDataEnd").Parse(tableDataTmplEnd)
 
-	// Get sql for each table
+	// UrlGet sql for each table
 	for _, name := range tables {
 		if err := createTable(ct, ds, de, writer, db, name); err != nil {
 			return err
@@ -103,7 +103,7 @@ func MySqlDump(db *sql.DB, writer io.Writer) error {
 func getTables(db *sql.DB) ([]string, error) {
 	tables := make([]string, 0)
 
-	// Get table list
+	// UrlGet table list
 	rows, err := db.Query("SHOW TABLES")
 	if err != nil {
 		return tables, err
@@ -162,14 +162,14 @@ func createTableSQL(db *sql.DB, name string) (string, error) {
 }
 
 func createTableValues(ds, de *template.Template, writer io.Writer, db *sql.DB, name string) error {
-	// Get Data
+	// UrlGet Data
 	rows, err := db.Query("SELECT * FROM " + name)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
-	// Get columns
+	// UrlGet columns
 	columns, err := rows.Columns()
 	if err != nil {
 		return err
