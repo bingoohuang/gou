@@ -72,7 +72,7 @@ func GetDefaultSetting() *UrlHttpSettings {
 }
 
 // return *UrlHttpRequest with specific method
-func newUrlRequest(rawURL, method string) (*UrlHttpRequest, error) {
+func NewUrlRequest(rawURL, method string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
 	var resp http.Response
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -88,25 +88,39 @@ func newUrlRequest(rawURL, method string) (*UrlHttpRequest, error) {
 		ProtoMinor: 1,
 	}
 
+	if setting == nil {
+		setting = GetDefaultSetting()
+	}
+
 	return &UrlHttpRequest{
 		url:     rawURL,
 		req:     &req,
 		params:  map[string]string{},
 		files:   map[string]string{},
-		setting: defaultUrlSetting,
+		setting: *setting,
 		resp:    &resp,
 		body:    nil,
 	}, nil
 }
 
+// UrlGetV2 returns *UrlHttpRequest with GET method.
+func UrlGetV2(url string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
+	return NewUrlRequest(url, "GET", setting)
+}
+
 // UrlGet returns *UrlHttpRequest with GET method.
 func UrlGet(url string) (*UrlHttpRequest, error) {
-	return newUrlRequest(url, "GET")
+	return UrlGetV2(url, nil)
 }
 
 // MustUrlGet  returns *UrlHttpRequest with GET method.
 func MustUrlGet(url string) *UrlHttpRequest {
-	req, err := UrlGet(url)
+	return MustUrlGetV2(url, nil)
+}
+
+// MustUrlGetV2  returns *UrlHttpRequest with GET method.
+func MustUrlGetV2(url string, setting *UrlHttpSettings) *UrlHttpRequest {
+	req, err := UrlGetV2(url, setting)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -115,12 +129,22 @@ func MustUrlGet(url string) *UrlHttpRequest {
 
 // UrlPost returns *UrlHttpRequest with POST method.
 func UrlPost(url string) (*UrlHttpRequest, error) {
-	return newUrlRequest(url, "POST")
+	return UrlPostV2(url, nil)
+}
+
+// UrlPostV2 returns *UrlHttpRequest with POST method.
+func UrlPostV2(url string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
+	return NewUrlRequest(url, "POST", setting)
 }
 
 // MustUrlPost returns *UrlHttpRequest with POST method.
 func MustUrlPost(url string) *UrlHttpRequest {
-	req, err := UrlPost(url)
+	return MustUrlPostV2(url, nil)
+}
+
+// MustUrlPostV2 returns *UrlHttpRequest with POST method.
+func MustUrlPostV2(url string, setting *UrlHttpSettings) *UrlHttpRequest {
+	req, err := UrlPostV2(url, setting)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,12 +153,22 @@ func MustUrlPost(url string) *UrlHttpRequest {
 
 // UrlPut returns *UrlHttpRequest with PUT method.
 func UrlPut(url string) (*UrlHttpRequest, error) {
-	return newUrlRequest(url, "PUT")
+	return UrlPutV2(url, nil)
+}
+
+// UrlPutV2 returns *UrlHttpRequest with PUT method.
+func UrlPutV2(url string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
+	return NewUrlRequest(url, "PUT", setting)
 }
 
 // MustUrlPut returns *UrlHttpRequest with PUT method.
 func MustUrlPut(url string) *UrlHttpRequest {
-	req, err := UrlPut(url)
+	return MustUrlPutV2(url, nil)
+}
+
+// MustUrlPutV2 returns *UrlHttpRequest with PUT method.
+func MustUrlPutV2(url string, setting *UrlHttpSettings) *UrlHttpRequest {
+	req, err := UrlPutV2(url, setting)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,12 +177,22 @@ func MustUrlPut(url string) *UrlHttpRequest {
 
 // UrlDelete returns *UrlHttpRequest with DELETE method.
 func UrlDelete(url string) (*UrlHttpRequest, error) {
-	return newUrlRequest(url, "DELETE")
+	return UrlDeleteV2(url, nil)
+}
+
+// UrlDeleteV2 returns *UrlHttpRequest with DELETE method.
+func UrlDeleteV2(url string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
+	return NewUrlRequest(url, "DELETE", setting)
 }
 
 // MustDelete returns *UrlHttpRequest with DELETE method.
 func MustDelete(url string) *UrlHttpRequest {
-	req, err := UrlDelete(url)
+	return MustDeleteV2(url, nil)
+}
+
+// MustDeleteV2 returns *UrlHttpRequest with DELETE method.
+func MustDeleteV2(url string, setting *UrlHttpSettings) *UrlHttpRequest {
+	req, err := UrlDeleteV2(url, setting)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -157,12 +201,22 @@ func MustDelete(url string) *UrlHttpRequest {
 
 // UrlHead returns *UrlHttpRequest with HEAD method.
 func UrlHead(url string) (*UrlHttpRequest, error) {
-	return newUrlRequest(url, "HEAD")
+	return UrlHeadV2(url, nil)
+}
+
+// UrlHeadV2 returns *UrlHttpRequest with HEAD method.
+func UrlHeadV2(url string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
+	return NewUrlRequest(url, "HEAD", setting)
 }
 
 // MustUrlHead returns *UrlHttpRequest with UrlHead method.
 func MustUrlHead(url string) *UrlHttpRequest {
-	req, err := UrlHead(url)
+	return MustUrlHeadV2(url, nil)
+}
+
+// MustUrlHeadV2 returns *UrlHttpRequest with UrlHead method.
+func MustUrlHeadV2(url string, setting *UrlHttpSettings) *UrlHttpRequest {
+	req, err := UrlHeadV2(url, setting)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -171,12 +225,22 @@ func MustUrlHead(url string) *UrlHttpRequest {
 
 // UrlHead returns *UrlHttpRequest with PATCH method.
 func UrlPatch(url string) (*UrlHttpRequest, error) {
-	return newUrlRequest(url, "PATCH")
+	return UrlPatchV2(url, nil)
+}
+
+// UrlHeadV2 returns *UrlHttpRequest with PATCH method.
+func UrlPatchV2(url string, setting *UrlHttpSettings) (*UrlHttpRequest, error) {
+	return NewUrlRequest(url, "PATCH", setting)
 }
 
 // MustUrlPatch returns *UrlHttpRequest with UrlPatch method.
 func MustUrlPatch(url string) *UrlHttpRequest {
-	req, err := UrlPatch(url)
+	return MustUrlPatchV2(url, nil)
+}
+
+// MustUrlPatchV2 returns *UrlHttpRequest with UrlPatch method.
+func MustUrlPatchV2(url string, setting *UrlHttpSettings) *UrlHttpRequest {
+	req, err := UrlPatchV2(url, setting)
 	if err != nil {
 		log.Fatal(err)
 	}

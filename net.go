@@ -54,9 +54,9 @@ func BuildURL(base string, querys map[string]string) (string, error) {
 }
 
 // RestGet 发起一次HTTP GET调用，并且反序列化JSON到v代表的指针中。
-func RestGet(url string, v interface{}) error {
+func RestGetV2(url string, v interface{}, setting *UrlHttpSettings) error {
 	logrus.Debugf("RestGet %v", url)
-	req, err := UrlGet(url)
+	req, err := UrlGetV2(url, setting)
 	if err != nil {
 		logrus.Warnf(" UrlUrlGet failed %v", err)
 		return err
@@ -69,6 +69,11 @@ func RestGet(url string, v interface{}) error {
 	logrus.Debugf("RestGet  Result %+v", v)
 
 	return nil
+}
+
+// RestGet 发起一次HTTP GET调用，并且反序列化JSON到v代表的指针中。
+func RestGet(url string, v interface{}) error {
+	return RestGetV2(url, v, nil)
 }
 
 // HTTPGet 表示一次HTTP的Get调用
