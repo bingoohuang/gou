@@ -92,3 +92,40 @@ func GetLocalIps() []string {
 
 	return ips
 }
+
+// IfaceAddr 表示一个IP地址和网卡名称的结构
+type IfaceAddr struct {
+	IP        string
+	IfaceName string
+}
+
+// ListIP 列出本机所有IP
+func ListIP() ([]IfaceAddr, error) {
+	list, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]IfaceAddr, 0)
+	for _, iface := range list {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return ret, err
+		}
+
+		for _, addr := range addrs {
+			ipnet, ok := addr.(*net.IPNet)
+			if !ok || ipnet.IP.IsLoopback() || ipnet.IP.To4() == nil {
+				continue
+			}
+
+			ret = append(ret, IfaceAddr{
+				IP:        ipnet.IP.String(),
+				IfaceName: iface.Name,
+			})
+
+		}
+	}
+
+	return ret, nil
+}
