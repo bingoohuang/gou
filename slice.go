@@ -2,6 +2,7 @@ package gou
 
 import (
 	"fmt"
+	"github.com/thoas/go-funk"
 	"reflect"
 )
 
@@ -101,4 +102,3 @@ func internalIterateSlice0(from, to int, arrValue reflect.Value, numIn int, func
 		_ = funcValue.Call(values)
 	}
 }
-
