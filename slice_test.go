@@ -20,3 +20,9 @@ func TestIterateSlice2(t *testing.T) {
 	IterateSlice(a, 2, func(i int, s string) bool { st += s; return i == 0 })
 	assert.Equal(t, "20", st)
 }
+
+func TestSliceContains(t *testing.T) {
+	a := []string{"0", "1", "2"}
+	assert.True(t, SliceContains(a, "0"))
+	assert.False(t, SliceContains(a, "3"))
+}

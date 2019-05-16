@@ -104,3 +104,14 @@ func EmptyThen(s, then string) string {
 func ContainsIgnoreCase(a, b string) bool {
 	return strings.Contains(strings.ToUpper(a), strings.ToUpper(b))
 }
+
+// StringContains detects an item contained in container in whole word mode separated by sep
+// but if the absolute is specified and the container ==  absolute, true should always returned
+func StringContains(container, item, sep, absolute string) bool {
+	if absolute != "" && absolute == container {
+		return true
+	}
+
+	items := strings.Split(container, sep)
+	return SliceContains(items, item)
+}

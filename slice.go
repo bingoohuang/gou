@@ -6,25 +6,37 @@ import (
 	"reflect"
 )
 
-func IterateSlice(arr interface{}, start int, fn interface{}) bool {
-	if !funk.IsIteratee(arr) {
-		panic("First parameter must be an iteratee")
+func SliceContains(arr interface{}, elem interface{}) bool {
+	arrValue := reflect.ValueOf(arr)
+	arrType := arrValue.Type()
+	kind := arrType.Kind()
+
+	if kind == reflect.Slice || kind == reflect.Array {
+		for i := 0; i < arrValue.Len(); i++ {
+			// XXX - panics if slice element points to an unexported struct field
+			// see https://golang.org/pkg/reflect/#Value.Interface
+			if arrValue.Index(i).Interface() == elem {
+				return true
+			}
+		}
+		return false
 	}
 
+	panic(fmt.Sprintf("Type %s is not supported by Map", arrType.String()))
+	return false
+}
+
+func IterateSlice(arr interface{}, start int, fn interface{}) bool {
 	if !funk.IsFunction(fn) {
 		panic("Second argument must be function")
 	}
 
-	var (
-		funcValue = reflect.ValueOf(fn)
-		arrValue  = reflect.ValueOf(arr)
-		arrType   = arrValue.Type()
-	)
-
+	arrValue := reflect.ValueOf(arr)
+	arrType := arrValue.Type()
 	kind := arrType.Kind()
 
 	if kind == reflect.Slice || kind == reflect.Array {
-		return iterateSlice(arrValue, start, funcValue)
+		return iterateSlice(arrValue, start, reflect.ValueOf(fn))
 	}
 
 	panic(fmt.Sprintf("Type %s is not supported by Map", arrType.String()))
@@ -32,7 +44,6 @@ func IterateSlice(arr interface{}, start int, fn interface{}) bool {
 
 func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) bool {
 	funcType := funcValue.Type()
-
 	numOut := funcType.NumOut()
 	numIn := funcType.NumIn()
 	if !(numIn == 1 || numIn == 2) || !(numOut == 0 || numOut == 1) {
