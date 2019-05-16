@@ -18,7 +18,7 @@ func TestInfluxWrite(t *testing.T) {
 	a := assert.New(t)
 	a.Equal(fmt.Sprintf("%s %d", "weather,location=us-midwest temperature=82", ti.UnixNano()), line)
 
-	if err := InfluxWrite("http://beta.isignet.cn:10014/write?db=metrics", line); err != nil {
-		t.Fatal(err)
-	}
+	//if err := InfluxWrite("http://beta.isignet.cn:10014/write?db=metrics", line); err != nil {
+	//	t.Fatal(err)
+	//}
 }
