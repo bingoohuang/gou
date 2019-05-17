@@ -498,7 +498,12 @@ func (b *UrlHttpRequest) getResponse() (*http.Response, error) {
 		return nil, err
 	}
 	b.resp = resp
-	return resp, nil
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return resp, nil
+	}
+
+	return resp, errors.New(resp.Status)
 }
 
 func (b *UrlHttpRequest) SendOut() (*http.Response, error) {
