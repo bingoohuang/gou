@@ -1,7 +1,6 @@
 package gou
 
 import (
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -30,9 +29,9 @@ func TestIterateSlice3(t *testing.T) {
 	a := []string{"0", "1", "2"}
 	st := ""
 
-	ok, err := IterateSlice(a, 2, func(i int, s string) (bool, error) { st += s; return i == 0, errors.New("returned to head") })
+	ok, res := IterateSlice(a, 2, func(i int, s string) (bool, interface{}) { st += s; return i == 0, "xxxx" })
 	assert.True(t, ok)
-	assert.NotNil(t, err)
+	assert.Equal(t, "xxxx", res)
 	assert.Equal(t, "20", st)
 }
 

@@ -26,7 +26,7 @@ func SliceContains(arr interface{}, elem interface{}) bool {
 	return false
 }
 
-func IterateSlice(arr interface{}, start int, fn interface{}) (bool, error) {
+func IterateSlice(arr interface{}, start int, fn interface{}) (bool, interface{}) {
 	if !funk.IsFunction(fn) {
 		panic("Second argument must be function")
 	}
@@ -44,7 +44,7 @@ func IterateSlice(arr interface{}, start int, fn interface{}) (bool, error) {
 
 var ErrorInterface = reflect.TypeOf((*error)(nil)).Elem()
 
-func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) (bool, error) {
+func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) (bool, interface{}) {
 	funcType := funcValue.Type()
 	numOut := funcType.NumOut()
 	numIn := funcType.NumIn()
@@ -55,7 +55,7 @@ func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) (b
 	if numOut >= 1 && funcType.Out(0).Kind() != reflect.Bool {
 		panic("Iterate function must return bool when there is 1 parameters")
 	}
-	if numOut >= 2 && funcType.Out(1) != ErrorInterface {
+	if numOut >= 2 && funcType.Out(1).Kind() != reflect.Interface {
 		panic("Iterate function must return (bool, error) when there is 2 parameters")
 	}
 
@@ -80,13 +80,13 @@ func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) (b
 		return false, nil
 	}
 
-	if over, err := internalIterateSlice1(start, arrValue.Len(), arrValue, numIn, numOut, funcValue); over {
-		return true, err
+	if over, inte := internalIterateSlice1(start, arrValue.Len(), arrValue, numIn, numOut, funcValue); over {
+		return true, inte
 	}
 	return internalIterateSlice1(0, start, arrValue, numIn, numOut, funcValue)
 }
 
-func internalIterateSlice1(from, to int, arrValue reflect.Value, numIn, numOut int, funcValue reflect.Value) (bool, error) {
+func internalIterateSlice1(from, to int, arrValue reflect.Value, numIn, numOut int, funcValue reflect.Value) (bool, interface{}) {
 	for i := from; i < to; i++ {
 		var values []reflect.Value
 		if numIn == 1 {
@@ -97,7 +97,7 @@ func internalIterateSlice1(from, to int, arrValue reflect.Value, numIn, numOut i
 
 		if results := funcValue.Call(values); results[0].Bool() {
 			if numOut >= 2 {
-				return true, results[1].Interface().(error)
+				return true, results[1].Interface()
 			}
 			return true, nil
 		}
