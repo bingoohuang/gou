@@ -90,11 +90,22 @@ func HTTPGet(url string) ([]byte, error) {
 
 // RestPost 表示一次HTTP的POST调用
 func RestPost(url string, requestBody interface{}, responseStruct interface{}) ([]byte, error) {
+	return RestPostFn(url, requestBody, responseStruct, nil)
+}
+
+func RestPostFn(url string, requestBody interface{}, responseStruct interface{}, fn func(_ *UrlHttpRequest) error) ([]byte, error) {
 	logrus.Debugf("post body %#v", requestBody)
 
 	resp, err := UrlPost(url)
 	if err != nil {
 		return nil, err
+	}
+
+	if fn != nil {
+		err = fn(resp)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err = resp.JsonBody(requestBody); err != nil {
