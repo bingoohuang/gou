@@ -26,7 +26,7 @@ func SliceContains(arr interface{}, elem interface{}) bool {
 	return false
 }
 
-func IterateSlice(arr interface{}, start int, fn interface{}) bool {
+func IterateSlice(arr interface{}, start int, fn interface{}) (bool, error) {
 	if !funk.IsFunction(fn) {
 		panic("Second argument must be function")
 	}
@@ -42,16 +42,21 @@ func IterateSlice(arr interface{}, start int, fn interface{}) bool {
 	panic(fmt.Sprintf("Type %s is not supported by Map", arrType.String()))
 }
 
-func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) bool {
+var ErrorInterface = reflect.TypeOf((*error)(nil)).Elem()
+
+func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) (bool, error) {
 	funcType := funcValue.Type()
 	numOut := funcType.NumOut()
 	numIn := funcType.NumIn()
-	if !(numIn == 1 || numIn == 2) || !(numOut == 0 || numOut == 1) {
-		panic("Iterate function with an array must have 1/2 parameter and must return 0/1 parameter")
+	if !(numIn == 1 || numIn == 2) || numOut > 2 {
+		panic("Iterate function with an array must have 1/2 parameter and must return 0/1(bool)/2(bool,error) parameter")
 	}
 
-	if numOut == 1 && funcType.Out(0).Kind() != reflect.Bool {
-		panic("Iterate function must return bool when there is one parameters")
+	if numOut >= 1 && funcType.Out(0).Kind() != reflect.Bool {
+		panic("Iterate function must return bool when there is 1 parameters")
+	}
+	if numOut >= 2 && funcType.Out(1) != ErrorInterface {
+		panic("Iterate function must return (bool, error) when there is 2 parameters")
 	}
 
 	arrElemType := arrValue.Type().Elem()
@@ -72,20 +77,16 @@ func iterateSlice(arrValue reflect.Value, start int, funcValue reflect.Value) bo
 	if numOut == 0 {
 		internalIterateSlice0(start, arrValue.Len(), arrValue, numIn, funcValue)
 		internalIterateSlice0(0, start, arrValue, numIn, funcValue)
-		return false
+		return false, nil
 	}
 
-	if numOut == 1 {
-		if over := internalIterateSlice1(start, arrValue.Len(), arrValue, numIn, funcValue); over {
-			return true
-		}
-		return internalIterateSlice1(0, start, arrValue, numIn, funcValue)
+	if over, err := internalIterateSlice1(start, arrValue.Len(), arrValue, numIn, numOut, funcValue); over {
+		return true, err
 	}
-
-	return false
+	return internalIterateSlice1(0, start, arrValue, numIn, numOut, funcValue)
 }
 
-func internalIterateSlice1(from, to int, arrValue reflect.Value, numIn int, funcValue reflect.Value) bool {
+func internalIterateSlice1(from, to int, arrValue reflect.Value, numIn, numOut int, funcValue reflect.Value) (bool, error) {
 	for i := from; i < to; i++ {
 		var values []reflect.Value
 		if numIn == 1 {
@@ -95,11 +96,14 @@ func internalIterateSlice1(from, to int, arrValue reflect.Value, numIn int, func
 		}
 
 		if results := funcValue.Call(values); results[0].Bool() {
-			return true
+			if numOut >= 2 {
+				return true, results[1].Interface().(error)
+			}
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 func internalIterateSlice0(from, to int, arrValue reflect.Value, numIn int, funcValue reflect.Value) {
