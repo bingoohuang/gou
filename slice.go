@@ -26,6 +26,23 @@ func SliceContains(arr interface{}, elem interface{}) bool {
 	return false
 }
 
+func RandomIterateSlice(arr interface{}, fn interface{}) (bool, interface{}) {
+	if !funk.IsFunction(fn) {
+		panic("Second argument must be function")
+	}
+
+	arrValue := reflect.ValueOf(arr)
+	arrType := arrValue.Type()
+	kind := arrType.Kind()
+
+	if kind == reflect.Slice || kind == reflect.Array {
+		start := RandomIntN(uint64(arrValue.Len()))
+		return iterateSlice(arrValue, start, reflect.ValueOf(fn))
+	}
+
+	panic(fmt.Sprintf("Type %s is not supported by Map", arrType.String()))
+}
+
 func IterateSlice(arr interface{}, start int, fn interface{}) (bool, interface{}) {
 	if !funk.IsFunction(fn) {
 		panic("Second argument must be function")
