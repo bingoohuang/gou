@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
-	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 )
@@ -38,7 +37,7 @@ func fillField(m map[string]interface{}, sf StructField, f reflect.Value) {
 		}
 	}
 
-	name := strcase.ToSnake(sf.Name)
+	name := SnakeCase(sf.Name)
 	if v, ok := m[name]; ok {
 		setFieldValue(sf, f, v)
 		return

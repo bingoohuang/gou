@@ -7,7 +7,6 @@ require (
 	github.com/averagesecurityguy/random v0.0.0-20180326012618-37cce341d2af
 	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/gin-gonic/gin v1.4.0
-	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/lestrrat-go/envload v0.0.0-20180220234015-a3eb8ddeffcc // indirect
