@@ -73,6 +73,58 @@ func MapKeys(m interface{}) interface{} {
 	return ks.Interface()
 }
 
+// MapKeysSorted 返回Map排序后的key切片
+func MapKeysSorted(m interface{}) interface{} {
+	mv := reflect.ValueOf(m)
+	if mv.Kind() != reflect.Map {
+		return nil
+	}
+
+	mapLen := mv.Len()
+	keyType := mv.Type().Key()
+	keyKind := keyType.Kind()
+	var keyMap map[interface{}]string
+	switch keyKind {
+	case reflect.String:
+	case reflect.Int:
+	case reflect.Float64:
+	default:
+		keyMap = make(map[interface{}]string, mapLen)
+	}
+
+	ks := reflect.MakeSlice(reflect.SliceOf(keyType), mapLen, mapLen)
+	i := 0
+	for _, k := range mv.MapKeys() {
+		if keyMap != nil {
+			keyMap[k.Interface()] = fmt.Sprintf("%v", k.Interface())
+		}
+
+		ks.Index(i).Set(k)
+		i++
+	}
+
+	ksi := ks.Interface()
+
+	if keyMap != nil {
+		sort.Slice(ksi, func(i, j int) bool {
+			ki := keyMap[ks.Index(i).Interface()]
+			kj := keyMap[ks.Index(j).Interface()]
+			return ki < kj
+		})
+	} else {
+		switch keyKind {
+		case reflect.String:
+			sort.Strings(ksi.([]string))
+		case reflect.Int:
+			sort.Ints(ksi.([]int))
+		case reflect.Float64:
+			sort.Float64s(ksi.([]float64))
+		}
+	}
+
+	return ksi
+}
+
 // MapValues 返回Map的value切片
 func MapValues(m interface{}) interface{} {
 	v := reflect.ValueOf(m)

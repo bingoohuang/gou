@@ -6,6 +6,17 @@ import (
 	"testing"
 )
 
+func TestMapKeysSorted(t *testing.T) {
+	m := map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+	}
+
+	keys := MapKeysSorted(m).([]int)
+	assert.Equal(t, []int{1, 2, 3}, keys)
+}
+
 func TestMapDefault(t *testing.T) {
 	a := assert.New(t)
 
