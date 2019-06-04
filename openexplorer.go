@@ -1,9 +1,10 @@
 package gou
 
 import (
-	"github.com/skratchdot/open-golang/open"
 	"runtime"
 	"time"
+
+	"github.com/skratchdot/open-golang/open"
 )
 
 func OpenExplorerWithContext(contextPath, port string) {

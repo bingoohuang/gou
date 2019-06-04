@@ -3,9 +3,10 @@ package gou
 import (
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Query execute influxQl (refer to https://docs.influxdata.com/influxdb/v1.7/query_language)

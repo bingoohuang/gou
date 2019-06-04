@@ -2,6 +2,7 @@ package gou
 
 import (
 	"encoding/json"
+
 	"github.com/pelletier/go-toml"
 )
 

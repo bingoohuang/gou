@@ -1,8 +1,9 @@
 package gou
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMakeSliceGroup0(t *testing.T) {

@@ -3,9 +3,10 @@ package gou
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/sirupsen/logrus"
 	"regexp"
 	"runtime/debug"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Recover 在系统崩溃是，恢复系统

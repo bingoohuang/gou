@@ -3,13 +3,14 @@ package gou
 import (
 	"bufio"
 	"fmt"
-	"github.com/lestrrat-go/file-rotatelogs"
-	"github.com/pkg/errors"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
 	"os"
 	"path"
 	"time"
+
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/pkg/errors"
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 )
 
 // 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial

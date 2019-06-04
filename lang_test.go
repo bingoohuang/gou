@@ -1,9 +1,10 @@
 package gou
 
 import (
-	"github.com/stretchr/testify/assert"
 	"sort"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMapKeys(t *testing.T) {

@@ -3,11 +3,12 @@ package gou
 import (
 	"bytes"
 	"fmt"
+	"strings"
+
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
 	"github.com/tdewolff/minify/html"
 	"github.com/tdewolff/minify/js"
-	"strings"
 )
 
 func MinifyHtml(htmlString string, devMode bool) string {

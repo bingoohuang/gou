@@ -1,9 +1,10 @@
 package gou
 
 import (
-	"github.com/lunny/log"
 	"os"
 	"strconv"
+
+	"github.com/lunny/log"
 )
 
 // https://log.zvz.im/2018/02/28/handling-million-requests-with-golang/?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io

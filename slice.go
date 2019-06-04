@@ -2,8 +2,9 @@ package gou
 
 import (
 	"fmt"
-	"github.com/thoas/go-funk"
 	"reflect"
+
+	"github.com/thoas/go-funk"
 )
 
 func SliceContains(arr interface{}, elem interface{}) bool {
