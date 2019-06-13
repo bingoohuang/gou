@@ -48,7 +48,12 @@ func SplitToMap(s string, kvSep, kkSep string) map[string]string {
 	ss := strings.Split(s, kkSep)
 	m = make(map[string]string)
 	for _, pair := range ss {
-		k, v := Split2(pair, kvSep, true, false)
+		p := strings.TrimSpace(pair)
+		if p == "" {
+			continue
+		}
+
+		k, v := Split2(p, kvSep, true, false)
 		m[k] = v
 	}
 
