@@ -3,6 +3,7 @@ package gou
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"time"
@@ -14,7 +15,7 @@ import (
 )
 
 // 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial
-func InitLogger(logLevel, logDir, filename string) {
+func InitLogger(logLevel, logDir, filename string) io.Writer {
 	baseLogPath := path.Join(logDir, filename)
 	writer, err := rotatelogs.New(
 		baseLogPath+".%Y%m%d%H%M",
@@ -50,6 +51,7 @@ func InitLogger(logLevel, logDir, filename string) {
 		logrus.PanicLevel: writer,
 	}, &logrus.TextFormatter{})
 	logrus.AddHook(lfHook)
+	return writer
 }
 
 func setNull() {
