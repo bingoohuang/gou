@@ -23,9 +23,8 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/testify v1.3.0
 	github.com/tdewolff/minify v2.3.6+incompatible
-	github.com/tdewolff/parse v2.3.3+incompatible // indirect
+	github.com/tdewolff/parse v2.3.4+incompatible // indirect
+	github.com/tdewolff/test v1.0.0 // indirect
 	github.com/tebeka/strftime v0.0.0-20140926081919-3f9c7761e312 // indirect
 	github.com/thoas/go-funk v0.4.0
 )
-
-replace github.com/tdewolff/parse => github.com/tdewolff/parse v0.0.0-20181024085210-fced451e0bed

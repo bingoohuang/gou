@@ -83,6 +83,6 @@ func TestSplitToMap(t *testing.T) {
 	a := assert.New(t)
 	a.Equal(SplitToMap("m:mean;s:sum", ":", ";"), map[string]string{"m": "mean", "s": "sum"})
 	a.Equal(SplitToMap("", ":", ";"), map[string]string{})
-	a.Equal(SplitToMap("aa", ":", ";"), map[string]string{"aa":""})
-	a.Equal(SplitToMap("aa;bb:1", ":", ";"), map[string]string{"aa":"", "bb":"1"})
+	a.Equal(SplitToMap("aa", ":", ";"), map[string]string{"aa": ""})
+	a.Equal(SplitToMap("aa;bb:1", ":", ";"), map[string]string{"aa": "", "bb": "1"})
 }
