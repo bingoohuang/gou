@@ -86,6 +86,4 @@ func IsQuerySql(sql string) bool {
 	default:
 		return false
 	}
-
-	return false
 }
