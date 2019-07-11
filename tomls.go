@@ -3,7 +3,7 @@ package gou
 import (
 	"encoding/json"
 
-	"github.com/pelletier/go-toml"
+	toml "github.com/pelletier/go-toml"
 )
 
 func TomlToJson(data []byte) ([]byte, error) {

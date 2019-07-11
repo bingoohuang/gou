@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/thoas/go-funk"
+	funk "github.com/thoas/go-funk"
 )
 
 func SliceContains(arr interface{}, elem interface{}) bool {
