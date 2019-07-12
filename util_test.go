@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 func TestTpl(t *testing.T) {
 	a := assert.New(t)
 	a.Equal("bingoohuang", Tpl("{name}", map[string]interface{}{"name": "bingoohuang"}))

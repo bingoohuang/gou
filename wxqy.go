@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/bingoohuang/gonet"
 )
 
 type WxLoginUserId struct {
@@ -114,7 +116,7 @@ func SendWxQyMsg(accessToken, agentId, content string) (string, error) {
 			"content": content,
 		},
 	}
-	_, err := HttpPost("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+accessToken, msg)
+	_, err := gonet.RestPost("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+accessToken, msg, nil)
 	return accessToken, err
 }
 func CreateWxQyLoginUrl(cropId, agentId, redirectUri, csrfToken string) string {

@@ -1,49 +1,10 @@
 package gou
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"sync"
 )
-
-// GetSliceByPtr 检查一个值v是否是Slice的指针，返回slice切片的reflect值
-func GetSliceByPtr(v interface{}) (reflect.Value, error) {
-	iv := reflect.ValueOf(v)
-	nilValue := reflect.ValueOf(nil)
-	if iv.Kind() != reflect.Ptr {
-		return nilValue, fmt.Errorf("non-pointer %v", iv.Type())
-	}
-
-	// get the value that the pointer v points to.
-	ve := iv.Elem()
-	if ve.Kind() != reflect.Slice {
-		return nilValue, fmt.Errorf("can't fill non-slice value")
-	}
-
-	return ve, nil
-}
-
-// EnsureSliceLen grows the slice capability
-func EnsureSliceLen(v reflect.Value, len int) {
-	// Grow slice if necessary
-	if len >= v.Cap() {
-		cap2 := v.Cap() + v.Cap()/2
-		if cap2 < 4 {
-			cap2 = 4
-		}
-		if cap2 < len {
-			cap2 = len
-		}
-
-		v2 := reflect.MakeSlice(v.Type(), v.Len(), cap2)
-		reflect.Copy(v2, v)
-		v.Set(v2)
-	}
-	if len >= v.Len() {
-		v.SetLen(len + 1)
-	}
-}
 
 var fieldCache sync.Map // map[reflect.Type][]field
 

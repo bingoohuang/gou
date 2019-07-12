@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 // RspBase 代表返回的公共结构
 type RspBase struct {
 	Status  int    `json:"status"`
@@ -27,4 +26,3 @@ func ErrHandled(err error, c *gin.Context) bool {
 	c.JSON(200, RspBase{Status: 400, Message: err.Error()})
 	return true
 }
-

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+
+	"github.com/bingoohuang/goreflect"
 )
 
 func FirstWord(value string) string {
@@ -23,13 +25,6 @@ func FirstWord(value string) string {
 	}
 	// Return the entire string.
 	return value[started:ended]
-}
-
-func IfElse(ifCondition bool, ifValue, elseValue string) string {
-	if ifCondition {
-		return ifValue
-	}
-	return elseValue
 }
 
 func ParseMapString(str string, separator, keyValueSeparator string) map[string]string {
@@ -98,7 +93,7 @@ func SplitTrim(str, sep string) []string {
 }
 
 func EmptyThen(s, then string) string {
-	return IfElse(s != "", s, then)
+	return If(s != "", s, then)
 }
 
 func ContainsIgnoreCase(a, b string) bool {
@@ -113,5 +108,5 @@ func StringContains(container, item, sep, absolute string) bool {
 	}
 
 	items := strings.Split(container, sep)
-	return SliceContains(items, item)
+	return goreflect.SliceContains(items, item)
 }
