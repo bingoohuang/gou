@@ -25,3 +25,8 @@ fmt.Println(enc.Base64Decode("5LiN5b-Y5Yid5b-D54mi6K6w5L2_5ZG9IQ")) // 不忘初
 fmt.Println(enc.CBCEncrypt("16/24/32bytesxxx", "新时代中国特色社会主义!"))
 fmt.Println(enc.CBCDecrypt("16/24/32bytesxxx", "HK5Ptmtt3V16mIBhJqNeQS_SbTn5kNmE4FSKoxx5t_I9fbIkf2GnjTF6T9KtuWuA8WZYWLMYZeAGsuHyycz9UA=="))
 ```
+
+## Thanks
+
+1. [A collection of useful utility functions](https://github.com/shomali11/util)
+1. [github search go string utilities](https://github.com/search?l=Go&q=string+utilities&type=Repositories)
