@@ -61,7 +61,7 @@ func ParseMapString(str string, separator, keyValueSeparator string) map[string]
 	return m
 }
 
-func IndexOf(word string, data []string) int {
+func IndexOf(word string, data ...string) int {
 	for k, v := range data {
 		if word == v {
 			return k
@@ -71,17 +71,23 @@ func IndexOf(word string, data []string) int {
 	return -1
 }
 
-func MapOf(arr []string) map[string]string {
+func MapOf(arr ...string) map[string]string {
 	result := make(map[string]string)
-	for i := 0; i+1 < len(arr); i += 2 {
+	i := 0
+	for ; i+1 < len(arr); i += 2 {
 		result[arr[i]] = arr[i+1]
 	}
+
+	if i < len(arr) {
+		result[arr[i]] = ""
+	}
+
 	return result
 }
 
 func MapToString(m map[string]string) string {
 	b := new(bytes.Buffer)
-	fmt.Fprintf(b, "%v", m)
+	_, _ = fmt.Fprintf(b, "%v", m)
 	return b.String()
 }
 
@@ -103,7 +109,7 @@ func EmptyThen(s, then string) string {
 }
 
 func ContainsIgnoreCase(a, b string) bool {
-	return strings.Contains(strings.ToUpper(a), strings.ToUpper(b))
+	return strings.EqualFold(a, b)
 }
 
 // StringContains detects an item contained in container in whole word mode separated by sep
