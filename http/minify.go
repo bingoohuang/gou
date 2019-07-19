@@ -112,12 +112,13 @@ func FilterAssetNamesOrdered(assetNames []string, suffix string, orderedNames ..
 	filtered := make([]string, 0)
 
 	for _, orderedName := range orderedNames {
-		if str.IndexOf(orderedName+suffix, assetNames) >= 0 {
+		if str.IndexOf(orderedName+suffix, assetNames...) >= 0 {
 			filtered = append(filtered, orderedName+suffix)
 		}
 	}
 	for _, assetName := range assetNames {
-		if strings.HasSuffix(assetName, suffix) && str.IndexOf(strings.TrimSuffix(assetName, suffix), orderedNames) < 0 {
+		if strings.HasSuffix(assetName, suffix) &&
+			str.IndexOf(strings.TrimSuffix(assetName, suffix), orderedNames...) < 0 {
 			filtered = append(filtered, assetName)
 		}
 	}
