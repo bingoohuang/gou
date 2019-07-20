@@ -19,6 +19,8 @@ fmt.Println(str.HasPrefix("http://www.abc.com", "http://", "https://")) // true
 
 ## Codecs
 
+1. Targz/Untargz
+
 ```go
 fmt.Println(enc.Base64("不忘初心牢记使命!")) // 5LiN5b-Y5Yid5b-D54mi6K6w5L2_5ZG9IQ
 fmt.Println(enc.Base64Decode("5LiN5b-Y5Yid5b-D54mi6K6w5L2_5ZG9IQ")) // 不忘初心牢记使命!
