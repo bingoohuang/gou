@@ -10,6 +10,17 @@ import (
 	"github.com/bingoohuang/goreflect"
 )
 
+// HasPrefix tells s has any prefix of p...
+func HasPrefix(s string, p ...string) bool {
+	for _, i := range p {
+		if strings.HasPrefix(s, i) {
+			return true
+		}
+	}
+
+	return false
+}
+
 var reCrLn = regexp.MustCompile(`\r?\n`) // nolint
 var reBlanks = regexp.MustCompile(`\s+`) // nolint
 

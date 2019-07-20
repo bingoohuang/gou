@@ -17,4 +17,5 @@ func TestExamples(t *testing.T) {
 	fmt.Println(str.SplitTrim("k1,,k2", ","))                               // [k1 k2]
 	fmt.Println(str.EmptyThen("", "default"))                               // default
 	fmt.Println(str.ContainsIgnoreCase("ÑOÑO", "ñoño"))                     // true
+	fmt.Println(str.HasPrefix("http://www.abc.com", "http://", "https://")) // true
 }

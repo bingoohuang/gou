@@ -14,6 +14,7 @@ fmt.Println(str.IndexOf("k1", "k0", "k1"))   // 1
 fmt.Println(str.SplitTrim("k1,,k2", ","))   // [k1 k2]
 fmt.Println(str.EmptyThen("", "default"))    // default
 fmt.Println(str.ContainsIgnoreCase("ÑOÑO", "ñoño"))   // true
+fmt.Println(str.HasPrefix("http://www.abc.com", "http://", "https://")) // true
 ```
 
 ## Codecs
