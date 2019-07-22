@@ -153,6 +153,11 @@ func ContainsWord(s, sep, word string) bool {
 	return false
 }
 
+// NoneOf 给定x是否不在所有的any中
+func NoneOf(x interface{}, any ...interface{}) bool {
+	return !AnyOf(x, any...)
+}
+
 // AnyOf 给定x是否在any中
 func AnyOf(x interface{}, any ...interface{}) bool {
 	for _, a := range any {
