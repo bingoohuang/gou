@@ -22,4 +22,23 @@ func TestExamples(t *testing.T) {
 	a := ".tar.gz"
 	fmt.Println(str.AnyOf(a, ".tar", ".tar.gz")) // true
 	fmt.Println(str.NoneOf(a, ".xls", ".xlsx"))  // true
+
+	fmt.Println(str.ParseFloat32("1.1")) // 1.1
+	fmt.Println(str.ParseFloat64("1.1")) // 1.1
+	fmt.Println(str.ParseInt8("-11"))    // -11
+	fmt.Println(str.ParseInt16("11"))    // 11
+	fmt.Println(str.ParseInt32("11"))    // 11
+	fmt.Println(str.ParseInt64("11"))    // 11
+
+	fmt.Println(str.ParseUint("11"))   // 11
+	fmt.Println(str.ParseUint8("11"))  // 11
+	fmt.Println(str.ParseUint16("11")) // 11
+	fmt.Println(str.ParseUint32("11")) // 11
+	fmt.Println(str.ParseUint64("11")) // 11
+
+	fmt.Println(str.ParseInt("11"))   // 11
+	fmt.Println(str.ParseInt8("11"))  // 11
+	fmt.Println(str.ParseInt16("11")) // 11
+	fmt.Println(str.ParseInt32("11")) // 11
+	fmt.Println(str.ParseInt64("11")) // 11
 }
