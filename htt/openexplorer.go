@@ -1,10 +1,10 @@
-package http
+package htt
 
 import (
 	"runtime"
 	"time"
 
-	"github.com/bingoohuang/gou/rand"
+	"github.com/bingoohuang/gou/ran"
 
 	"github.com/skratchdot/open-golang/open"
 )
@@ -17,7 +17,7 @@ func OpenExplorerWithContext(contextPath, port string) {
 		case "windows":
 			fallthrough
 		case "darwin":
-			_ = open.Run("http://127.0.0.1:" + port + contextPath + "/?" + rand.String(10))
+			_ = open.Run("http://127.0.0.1:" + port + contextPath + "/?" + ran.String(10))
 		}
 	}()
 }

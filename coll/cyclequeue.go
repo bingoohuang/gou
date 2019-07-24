@@ -3,7 +3,7 @@ package coll
 import (
 	"sync"
 
-	"github.com/bingoohuang/gou/math"
+	"github.com/bingoohuang/gou/mat"
 )
 
 // https://gist.github.com/moraes/2141121
@@ -38,7 +38,7 @@ func (q *CycleQueue) FetchAll(index int) ([]interface{}, int) {
 	defer q.Mutex.Unlock()
 
 	if index < 0 {
-		index = math.MaxInt(q.Counting-1, 0)
+		index = mat.MaxInt(q.Counting-1, 0)
 	}
 
 	nodes := make([]interface{}, 0)

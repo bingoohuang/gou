@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/bingoohuang/gou/log"
+	"github.com/bingoohuang/gou/lo"
 
 	"github.com/araddon/dateparse"
 	"github.com/bingoohuang/strcase"
@@ -49,7 +49,7 @@ func fillField(m map[string]interface{}, sf StructField, f reflect.Value) {
 	if sf.Kind == reflect.Struct && sf.Anonymous {
 		fv := reflect.New(f.Type()).Interface()
 		err := Map2Struct(m, fv)
-		log.Err(err)
+		lo.Err(err)
 
 		v := reflect.ValueOf(fv).Elem()
 		f.Set(v)
