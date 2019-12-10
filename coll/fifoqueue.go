@@ -4,7 +4,7 @@ import (
 	"container/list"
 )
 
-// FifoQuque is a head-tail linked list data structure implementation.
+// FifoQueue is a head-tail linked list data structure implementation.
 // It is based on a doubly linked list container, so that every
 // operations time complexity is O(1).
 //
@@ -15,7 +15,7 @@ type FifoQueue struct {
 	capacity  int
 }
 
-// NewCappedDeque creates a Deque with the specified capacity limit.
+// NewFifoQueue creates a Deque with the specified capacity limit.
 func NewFifoQueue(capacity int) *FifoQueue {
 	return &FifoQueue{
 		container: list.New(),
@@ -31,6 +31,7 @@ func (s *FifoQueue) Append(item interface{}) bool {
 	}
 
 	s.container.PushBack(item)
+
 	return true
 }
 
@@ -74,11 +75,12 @@ func (s *FifoQueue) Last() interface{} {
 	return nil
 }
 
-// Size returns the actual deque size
+// Capacity returns the capacity
 func (s *FifoQueue) Capacity() int {
 	return s.capacity
 }
 
+// Size ...
 func (s *FifoQueue) Size() int {
 	return s.container.Len()
 }

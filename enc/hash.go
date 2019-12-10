@@ -22,5 +22,6 @@ func Sha256(src string) (string, error) {
 func HmacSha1(src string, key string) string {
 	h := hmac.New(sha1.New, []byte(key))
 	_, _ = h.Write([]byte(src))
+
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

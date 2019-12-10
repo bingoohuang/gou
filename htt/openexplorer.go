@@ -9,6 +9,7 @@ import (
 	"github.com/skratchdot/open-golang/open"
 )
 
+// OpenExplorerWithContext ...
 func OpenExplorerWithContext(contextPath, port string) {
 	go func() {
 		time.Sleep(100 * time.Millisecond)
@@ -22,6 +23,7 @@ func OpenExplorerWithContext(contextPath, port string) {
 	}()
 }
 
+// OpenExplorer ...
 func OpenExplorer(port string) {
 	OpenExplorerWithContext("", port)
 }

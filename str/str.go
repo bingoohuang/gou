@@ -29,25 +29,31 @@ func SingleLine(s string) string {
 	return reBlanks.ReplaceAllString(reCrLn.ReplaceAllString(s, " "), " ")
 }
 
+// FirstWord find the first word of value.
 func FirstWord(value string) string {
 	started := -1
+
 	// Loop over all indexes in the string.
 	for i, c := range value {
 		// If we encounter a space, reduce the count.
 		if started == -1 && !unicode.IsSpace(c) {
 			started = i
 		}
+
 		if started >= 0 && unicode.IsSpace(c) {
 			return value[started:i]
 		}
 	}
+
 	return value[started:]
 }
 
+// ParseMapString parses str to a map.
 func ParseMapString(str string, separator, keyValueSeparator string) map[string]string {
 	parts := strings.Split(str, separator)
 
 	m := make(map[string]string)
+
 	for _, part := range parts {
 		p := strings.TrimSpace(part)
 		if p == "" {
@@ -55,6 +61,7 @@ func ParseMapString(str string, separator, keyValueSeparator string) map[string]
 		}
 
 		index := strings.Index(p, keyValueSeparator)
+
 		if index > 0 {
 			key := p[0:index]
 			val := p[index+1:]
@@ -72,6 +79,7 @@ func ParseMapString(str string, separator, keyValueSeparator string) map[string]
 	return m
 }
 
+// IndexOf find the index of word in data slice.
 func IndexOf(word string, data ...string) int {
 	for k, v := range data {
 		if word == v {
@@ -82,9 +90,11 @@ func IndexOf(word string, data ...string) int {
 	return -1
 }
 
+// MapOf composites arr to a map.
 func MapOf(arr ...string) map[string]string {
 	result := make(map[string]string)
 	i := 0
+
 	for ; i+1 < len(arr); i += 2 {
 		result[arr[i]] = arr[i+1]
 	}
@@ -96,17 +106,22 @@ func MapOf(arr ...string) map[string]string {
 	return result
 }
 
+// MapToString joins map to a string.
 func MapToString(m map[string]string) string {
 	b := new(bytes.Buffer)
 	_, _ = fmt.Fprintf(b, "%v", m)
+
 	return b.String()
 }
 
+// SplitTrim splits and trims.
 func SplitTrim(str, sep string) []string {
 	subs := strings.Split(str, sep)
 	ret := make([]string, 0)
+
 	for i, v := range subs {
 		v := strings.TrimSpace(v)
+
 		if len(subs[i]) > 0 {
 			ret = append(ret, v)
 		}
@@ -115,10 +130,12 @@ func SplitTrim(str, sep string) []string {
 	return ret
 }
 
+// EmptyThen ...
 func EmptyThen(s, then string) string {
 	return If(s != "", s, then)
 }
 
+// ContainsIgnoreCase ...
 func ContainsIgnoreCase(a, b string) bool {
 	return strings.EqualFold(a, b)
 }
@@ -131,6 +148,7 @@ func StringContains(container, item, sep, absolute string) bool {
 	}
 
 	items := strings.Split(container, sep)
+
 	return goreflect.SliceContains(items, item)
 }
 
@@ -139,11 +157,14 @@ func If(c bool, a, b string) string {
 	if c {
 		return a
 	}
+
 	return b
 }
 
+// ContainsWord contains word or not.
 func ContainsWord(s, sep, word string) bool {
 	parts := SplitN(s, sep, true, true)
+
 	for _, p := range parts {
 		if p == word {
 			return true
@@ -172,6 +193,7 @@ func AnyOf(x interface{}, any ...interface{}) bool {
 // JoinNonEmpty 组合x
 func JoinNonEmpty(sep string, x ...string) string {
 	s := ""
+
 	for _, i := range x {
 		if i != "" {
 			s += sep + i
@@ -188,9 +210,11 @@ func JoinNonEmpty(sep string, x ...string) string {
 // Join 组合x
 func Join(x ...string) string {
 	s := ""
+
 	for _, i := range x {
 		s += i
 	}
+
 	return s
 }
 
@@ -198,6 +222,7 @@ func Join(x ...string) string {
 func Decode(target interface{}, decodeVars ...interface{}) interface{} {
 	length := len(decodeVars)
 	i := 0
+
 	for ; i+1 < length; i += 2 {
 		if target == decodeVars[i] {
 			return decodeVars[i+1]

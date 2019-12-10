@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// FixStrLength ...
 func FixStrLength(s string, fixLen int) string {
 	slen := len(s)
 	if slen < fixLen {
@@ -47,6 +48,7 @@ func CBCEncrypt(strKey, strPlaintext string) (string, error) {
 	// include it at the beginning of the ciphertext.
 	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
 	iv := ciphertext[:aes.BlockSize]
+
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return "", err
 	}
@@ -63,9 +65,11 @@ func CBCEncrypt(strKey, strPlaintext string) (string, error) {
 	return base64Text, nil
 }
 
+// CBCDecrypt ...
 func CBCDecrypt(strKey, strCiphertext string) (string, error) {
 	key := []byte(strKey)
 	ciphertext, err := base64.URLEncoding.DecodeString(strCiphertext)
+
 	if err != nil {
 		return "", err
 	}
@@ -80,6 +84,7 @@ func CBCDecrypt(strKey, strCiphertext string) (string, error) {
 	if len(ciphertext) < aes.BlockSize {
 		return "", errors.New("ciphertext too short")
 	}
+
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
 
@@ -105,21 +110,27 @@ func CBCDecrypt(strKey, strCiphertext string) (string, error) {
 	return string(ciphertext), nil
 }
 
+// PKCS5Padding ...
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+
 	return append(ciphertext, padtext...)
 }
 
+// PKCS5UnPadding ...
 func PKCS5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	// 去掉最后一个字节 unpadding 次
 	unpadding := int(origData[length-1])
+
 	return origData[:(length - unpadding)]
 }
 
+// ZeroPadding ...
 func ZeroPadding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{0}, padding)
+
 	return append(ciphertext, padtext...)
 }

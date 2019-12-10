@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Poem ...
 type Poem struct {
 	Title     string
 	TitleCode string
@@ -19,6 +20,7 @@ type Poem struct {
 	LinesCode []string
 }
 
+// ServeWelcome ...
 func ServeWelcome(w io.Writer, welcomeHTML []byte, contextPath string) {
 	welcome := string(welcomeHTML)
 
@@ -28,6 +30,7 @@ func ServeWelcome(w io.Writer, welcomeHTML []byte, contextPath string) {
 	welcome = strings.Replace(welcome, "<PoemAuthor/>", poem.Author, 1)
 
 	lines := ""
+
 	for i, line := range poem.Lines {
 		if i == linesIndex {
 			lines += `<div style="color:red">` + line + `</div>`
@@ -42,6 +45,7 @@ func ServeWelcome(w io.Writer, welcomeHTML []byte, contextPath string) {
 	_, _ = w.Write([]byte(welcome))
 }
 
+// RandomPoemBasicAuth ...
 func RandomPoemBasicAuth(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		basicAuthPrefix := "Basic "
@@ -75,18 +79,22 @@ func RandomPoemBasicAuth(fn http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// RandomPoem ...
 func RandomPoem() (Poem, int) {
 	poems := ParsePoems("./poems.txt")
 	now := time.Now()
 	poemsIndex := now.Day() % len(poems)
 	poem := poems[poemsIndex]
 	linesIndex := int(now.Weekday()) % len(poem.LinesCode)
+
 	return poem, linesIndex
 }
 
+// ParsePoems ...
 func ParsePoems(poemFile string) []Poem {
 	poems := make([]Poem, 0)
 	poemsBytes, err := ioutil.ReadFile(poemFile)
+
 	if err != nil {
 		fmt.Println("read poems error", err.Error())
 		return poems
@@ -107,6 +115,7 @@ func ParsePoems(poemFile string) []Poem {
 
 		lines := make([]string, 0)
 		linesCode := make([]string, 0)
+
 		for i++; i < len(fileLines); i++ {
 			if fileLines[i] == "" {
 				break

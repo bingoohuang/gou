@@ -24,7 +24,9 @@ func CachedStructFields(t reflect.Type, tagKey string) []StructField {
 	if f, ok := fieldCache.Load(t); ok {
 		return f.([]StructField)
 	}
+
 	f, _ := fieldCache.LoadOrStore(t, typeFields(t, tagKey))
+
 	return f.([]StructField)
 }
 
@@ -62,7 +64,6 @@ func CanAssign(t reflect.Type, kinds ...reflect.Kind) bool {
 	}
 
 	return false
-
 }
 
 func readTag(f reflect.StructField, tagKey string) []string {
@@ -70,5 +71,6 @@ func readTag(f reflect.StructField, tagKey string) []string {
 	if !ok {
 		return []string{}
 	}
+
 	return strings.Split(val, "/")
 }

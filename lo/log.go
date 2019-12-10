@@ -15,7 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial
+// InitLogger inits logger 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial
 func InitLogger(logLevel, logDir, filename string) io.Writer {
 	baseLogPath := path.Join(logDir, filename)
 	writer, err := rotatelogs.New(
@@ -24,6 +24,7 @@ func InitLogger(logLevel, logDir, filename string) io.Writer {
 		rotatelogs.WithMaxAge(7*24*time.Hour),     // 文件最大保存时间
 		rotatelogs.WithRotationTime(24*time.Hour), // 日志切割时间间隔
 	)
+
 	if err != nil {
 		logrus.Errorf("config local file system logger error. %v", errors.WithStack(err))
 	}
@@ -51,7 +52,9 @@ func InitLogger(logLevel, logDir, filename string) io.Writer {
 		logrus.FatalLevel: writer,
 		logrus.PanicLevel: writer,
 	}, &logrus.TextFormatter{})
+
 	logrus.AddHook(lfHook)
+
 	return writer
 }
 
@@ -60,6 +63,7 @@ func setNull() {
 	if err != nil {
 		fmt.Println("err", err)
 	}
+
 	writer := bufio.NewWriter(src)
 	logrus.SetOutput(writer)
 }

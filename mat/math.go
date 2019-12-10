@@ -6,36 +6,68 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// MaxInt 返回a和b中最大值
-func MaxInt(a, b int) int {
-	if a > b {
-		return a
+// MaxInt returns max of integers
+func MaxInt(i ...int) int {
+	m := 0
+	if len(i) > 0 {
+		m = i[0]
 	}
-	return b
+
+	for _, ii := range i {
+		if ii > m {
+			m = ii
+		}
+	}
+
+	return m
 }
 
 // MinInt 返回a和b中最小值
-func MinInt(a, b int) int {
-	if a < b {
-		return a
+func MinInt(i ...int) int {
+	m := 0
+	if len(i) > 0 {
+		m = i[0]
 	}
-	return b
+
+	for _, ii := range i {
+		if ii < m {
+			m = ii
+		}
+	}
+
+	return m
 }
 
 // MaxFloat32 返回a和b中最大值
-func MaxFloat32(a, b float32) float32 {
-	if a > b {
-		return a
+func MaxFloat32(i ...float32) float32 {
+	var m float32 = 0
+	if len(i) > 0 {
+		m = i[0]
 	}
-	return b
+
+	for _, ii := range i {
+		if ii > m {
+			m = ii
+		}
+	}
+
+	return m
 }
 
 // MinFloat32 返回a和b中最小值
-func MinFloat32(a, b float32) float32 {
-	if a < b {
-		return a
+func MinFloat32(i ...float32) float32 {
+	var m float32 = 0
+	if len(i) > 0 {
+		m = i[0]
 	}
-	return b
+
+	for _, ii := range i {
+		if ii < m {
+			m = ii
+		}
+	}
+
+	return m
 }
 
 // Sum 计算slice中指定值的和
@@ -43,6 +75,7 @@ func Sum(arr interface{}, f func(v interface{}) int) int {
 	value := redirectValue(reflect.ValueOf(arr))
 	kind := value.Kind()
 	s := 0
+
 	if kind == reflect.Array || kind == reflect.Slice {
 		length := value.Len()
 		for i := 0; i < length; i++ {
@@ -54,6 +87,7 @@ func Sum(arr interface{}, f func(v interface{}) int) int {
 	}
 
 	logrus.Warnf("Type %s is not supported", value.Type().String())
+
 	return s
 }
 

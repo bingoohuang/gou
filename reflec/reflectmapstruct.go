@@ -19,6 +19,7 @@ func Map2Struct(m map[string]interface{}, result interface{}) error {
 	if structTypePtr.Kind() != reflect.Ptr {
 		return fmt.Errorf("non struct ptr %v", structTypePtr)
 	}
+
 	v := reflect.ValueOf(result).Elem()
 	if v.Kind() != reflect.Struct {
 		return fmt.Errorf("non struct ptr %v", structTypePtr)
@@ -62,12 +63,14 @@ func setFieldValue(sf StructField, f reflect.Value, v interface{}) {
 	vt := reflect.TypeOf(v)
 	if vt == sf.Type {
 		f.Set(reflect.ValueOf(v))
+
 		return
 	}
 
 	if timeType == f.Type() {
 		t, _ := dateparse.ParseAny(cast.ToString(v))
 		f.Set(reflect.ValueOf(t))
+
 		return
 	}
 

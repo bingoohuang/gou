@@ -25,6 +25,7 @@ func (tp *Thing) Invoke(name string, args ...interface{}) []reflect.Value {
 func inspect(v []reflect.Value) {
 	for i := range v {
 		fmt.Printf("v[%d] => %q, ", i, v[i].Kind())
+
 		switch v[i].Kind() {
 		case reflect.Int:
 			fmt.Printf("%d", v[i].Int())
@@ -40,6 +41,7 @@ func inspect(v []reflect.Value) {
 			reflect.Slice, reflect.String, reflect.Struct,
 			reflect.UnsafePointer:
 		}
+
 		fmt.Println()
 	}
 }
@@ -48,9 +50,11 @@ func invoke(any interface{}, name string, args ...interface{}) []reflect.Value {
 	if len(args) > 0 {
 		fmt.Printf("\tthere are %d args\n", len(args))
 		inputs := make([]reflect.Value, len(args))
+
 		for i := range args {
 			inputs[i] = reflect.ValueOf(args[i])
 		}
+
 		return reflect.ValueOf(any).MethodByName(name).Call(inputs)
 	}
 
@@ -65,6 +69,7 @@ func TestInvoke(tt *testing.T) {
 	}()
 
 	var a Thing
+
 	inspect(a.Invoke("Hello", 42))
 	a.Invoke("Goodbye", "Rob", "DEAD")
 }

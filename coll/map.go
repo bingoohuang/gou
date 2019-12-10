@@ -10,13 +10,13 @@ func MakeMultiMap() *MultiMap {
 	return &MultiMap{M: make(map[interface{}][]interface{})}
 }
 
-// UrlGet 根据k或者v,ok
+// Get 根据k或者v,ok
 func (m *MultiMap) Get(k interface{}) (v []interface{}, ok bool) {
 	v, ok = m.M[k]
 	return
 }
 
-// UrlPut 加入k,v
+// Put 加入k,v
 func (m *MultiMap) Put(k, v interface{}) {
 	l, ok := m.M[k]
 	if ok {
@@ -29,7 +29,7 @@ func (m *MultiMap) Put(k, v interface{}) {
 	m.M[k] = l
 }
 
-// UrlDelete 删除k
+// Delete 删除k
 func (m *MultiMap) Delete(k interface{}) {
 	delete(m.M, k)
 }

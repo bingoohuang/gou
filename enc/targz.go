@@ -27,6 +27,7 @@ func Targz(srcPath string, baseDir bool, writer io.Writer) error {
 	defer tw.Close()
 
 	w := walker{srcPath: srcPath, tw: tw, baseDir: baseDir, base: filepath.Base(srcPath)}
+
 	return filepath.Walk(srcPath, w.walk)
 }
 

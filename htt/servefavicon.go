@@ -9,6 +9,7 @@ import (
 	"github.com/bingoohuang/gonet"
 )
 
+// ServeFavicon ...
 func ServeFavicon(path string, mustAsset func(name string) []byte,
 	assetInfo func(name string) (os.FileInfo, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

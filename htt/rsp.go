@@ -24,5 +24,6 @@ func ErrHandled(err error, c *gin.Context) bool {
 	}
 
 	c.JSON(200, RspBase{Status: 400, Message: err.Error()})
+
 	return true
 }

@@ -16,13 +16,16 @@ func TestTargz(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fmt.Println("src:", src)
+
 	defer os.RemoveAll(src)
 
 	file, err := ioutil.TempFile(src, "file")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer os.Remove(file.Name())
 
 	_ = ioutil.WriteFile(file.Name(), []byte("helloworld"), 0644)
@@ -31,26 +34,33 @@ func TestTargz(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fmt.Println("dest:", dest)
+
 	defer os.RemoveAll(dest)
 
 	targzfile, err := ioutil.TempFile(dest, "targzfile")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fmt.Println("targzfile:", targzfile.Name())
+
 	defer os.Remove(targzfile.Name())
 
 	if err := Targz(src, false, targzfile); err != nil {
 		t.Fatal(err)
 	}
+
 	targzfile.Close()
 
 	dir, err := ioutil.TempDir(os.TempDir(), "untargz")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fmt.Println("dir:", dir)
+
 	defer os.RemoveAll(dir)
 
 	targzfile, _ = os.Open(targzfile.Name())
@@ -150,5 +160,6 @@ func (w *equalsDirWalker) walk(file string, fi os.FileInfo, err error) error {
 	} else {
 		w.files[name] = true
 	}
+
 	return nil
 }

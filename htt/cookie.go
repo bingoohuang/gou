@@ -14,15 +14,18 @@ import (
 	"github.com/bingoohuang/gou/enc"
 )
 
+// ClearCookie ...
 func ClearCookie(w http.ResponseWriter, cookieName string) {
 	cookie := http.Cookie{Name: cookieName, Value: "", Path: "/", Expires: time.Now().AddDate(-1, 0, 0)}
 	http.SetCookie(w, &cookie)
 }
 
+// CookieValue ...
 type CookieValue interface {
 	ExpiredTime() time.Time
 }
 
+// WriteCookie ...
 func WriteCookie(w http.ResponseWriter, encryptKey, cookieName string, cookieValue CookieValue) error {
 	cookieVal, err := json.Marshal(cookieValue)
 	if err != nil {
@@ -41,6 +44,7 @@ func WriteCookie(w http.ResponseWriter, encryptKey, cookieName string, cookieVal
 	return nil
 }
 
+// WriteDomainCookie ...
 func WriteDomainCookie(w http.ResponseWriter, domain, encryptKey, cookieName string, cookieValue CookieValue) error {
 	cookieVal, err := json.Marshal(cookieValue)
 	if err != nil {
@@ -59,6 +63,7 @@ func WriteDomainCookie(w http.ResponseWriter, domain, encryptKey, cookieName str
 	return nil
 }
 
+// ReadCookie ...
 func ReadCookie(r *http.Request, encryptKey, cookieName string, cookieValue CookieValue) error {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
@@ -67,6 +72,7 @@ func ReadCookie(r *http.Request, encryptKey, cookieName string, cookieValue Cook
 
 	log.Println("cookie value:", cookie.Value)
 	decrypted, err := enc.CBCDecrypt(encryptKey, cookie.Value)
+
 	if err != nil {
 		return err
 	}
@@ -86,6 +92,7 @@ func ReadCookie(r *http.Request, encryptKey, cookieName string, cookieValue Cook
 	return nil
 }
 
+// CookieValueImpl ...
 type CookieValueImpl struct {
 	UserID    string
 	Name      string
@@ -94,10 +101,12 @@ type CookieValueImpl struct {
 	Expired   time.Time
 }
 
+// ExpiredTime ...
 func (t *CookieValueImpl) ExpiredTime() time.Time {
 	return t.Expired
 }
 
+// MustAuthParam ...
 type MustAuthParam struct {
 	EncryptKey  string
 	CookieName  string
@@ -106,6 +115,7 @@ type MustAuthParam struct {
 	ForceLogin  bool
 }
 
+// PrepareMustAuthFlag ...
 func PrepareMustAuthFlag(param *MustAuthParam) {
 	flag.StringVar(&param.EncryptKey, "key", "", "key to encryption or decryption")
 	flag.StringVar(&param.CookieName, "cookieName", "i-raiyee-cn-auth", "cookieName")
@@ -124,6 +134,8 @@ func PrepareMustAuthFlag(param *MustAuthParam) {
 	fmt.Println(r.RequestURI)
 	// output: /index?id=1
 */
+
+// MustAuth ...
 func MustAuth(fn http.HandlerFunc, param MustAuthParam, cookieContextKey interface{}) http.HandlerFunc { // nolint
 	if !param.ForceLogin {
 		return fn
