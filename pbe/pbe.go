@@ -2,10 +2,11 @@ package pbe
 
 import (
 	"fmt"
-	"github.com/bingoohuang/gou/file"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/bingoohuang/gou/file"
 
 	"github.com/jedib0t/go-pretty/table"
 )

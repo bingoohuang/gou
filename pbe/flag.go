@@ -19,8 +19,8 @@ func DeclarePflags() {
 	pflag.StringP(PbePwd, "", "", "pbe password")
 	pflag.StringSliceP("pbe", "", nil, "PrintEncrypt by pbe, string or @file")
 	pflag.StringSliceP("ebp", "", nil, "PrintDecrypt by pbe, string or @file")
-	pflag.StringP("pbechg", "", nil, "file to be change with another pbes")
-	pflag.StringP("pbenew", "", nil, "file to be change with another pbes")
+	pflag.StringP("pbechg", "", "", "file to be change with another pbes")
+	pflag.StringP("pbepwdnew", "", "", "new pbe pwd")
 }
 
 // DealPflag deals the request by the pflags.
@@ -57,7 +57,7 @@ func DealPflag() bool {
 			fmt.Println()
 		}
 
-		processPbeChgFile(pbechg, passStr, viper.GetString("pbenew"))
+		processPbeChgFile(pbechg, passStr, viper.GetString("pbepwdnew"))
 	}
 
 	return true
