@@ -17,16 +17,19 @@ const PbePwd = "pbepwd"
 // DeclarePflags declares the pbe required pflags.
 func DeclarePflags() {
 	pflag.StringP(PbePwd, "", "", "pbe password")
-	pflag.StringSliceP("pbe", "", nil, "PrintEncrypt by pbe")
-	pflag.StringSliceP("ebp", "", nil, "PrintDecrypt by pbe")
+	pflag.StringSliceP("pbe", "", nil, "PrintEncrypt by pbe, string or @file")
+	pflag.StringSliceP("ebp", "", nil, "PrintDecrypt by pbe, string or @file")
+	pflag.StringP("pbechg", "", nil, "file to be change with another pbes")
+	pflag.StringP("pbenew", "", nil, "file to be change with another pbes")
 }
 
 // DealPflag deals the request by the pflags.
 func DealPflag() bool {
 	pbes := viper.GetStringSlice("pbe")
 	ebps := viper.GetStringSlice("ebp")
+	pbechg := viper.GetString("pbechg")
 
-	if len(pbes) == 0 && len(ebps) == 0 {
+	if len(pbes) == 0 && len(ebps) == 0 && pbechg == "" {
 		return false
 	}
 
@@ -45,6 +48,16 @@ func DealPflag() bool {
 		}
 
 		PrintDecrypt(passStr, ebps...)
+
+		alreadyHasOutput = true
+	}
+
+	if pbechg != "" {
+		if alreadyHasOutput {
+			fmt.Println()
+		}
+
+		processPbeChgFile(pbechg, passStr, viper.GetString("pbenew"))
 	}
 
 	return true

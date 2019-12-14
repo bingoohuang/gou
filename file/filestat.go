@@ -14,8 +14,8 @@ const (
 	Unknown
 )
 
-// Stat stats the file.
-func Stat(name string) (ExistsEnum, error) {
+// StatE stats the file.
+func StatE(name string) (ExistsEnum, error) {
 	_, err := os.Stat(name)
 	if err == nil {
 		return Exists, nil
@@ -26,4 +26,18 @@ func Stat(name string) (ExistsEnum, error) {
 	}
 
 	return Unknown, err
+}
+
+// Stat stats the file.
+func Stat(name string) ExistsEnum {
+	_, err := os.Stat(name)
+	if err == nil {
+		return Exists
+	}
+
+	if os.IsNotExist(err) {
+		return NotExists
+	}
+
+	return Unknown
 }

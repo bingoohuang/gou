@@ -2,6 +2,8 @@ package pbe
 
 import (
 	"fmt"
+	"github.com/bingoohuang/gou/file"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -43,6 +45,12 @@ func Ebp(p string) (string, error) {
 
 // PrintEncrypt prints the PBE encryption.
 func PrintEncrypt(passStr string, plains ...string) {
+	if len(plains) == 1 && strings.HasPrefix(plains[0], "@") && file.Stat(plains[0][1:]) == file.Exists {
+		processPbeFile(plains[0][1:], passStr)
+
+		return
+	}
+
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"#", "Plain", "Encrypted"})
@@ -62,6 +70,12 @@ func PrintEncrypt(passStr string, plains ...string) {
 
 // PrintDecrypt prints the PBE decryption.
 func PrintDecrypt(passStr string, cipherText ...string) {
+	if len(cipherText) == 1 && strings.HasPrefix(cipherText[0], "@") && file.Stat(cipherText[0][1:]) == file.Exists {
+		processEbpFile(cipherText[0][1:], passStr)
+
+		return
+	}
+
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"#", "Encrypted", "Plain"})
@@ -79,4 +93,58 @@ func PrintDecrypt(passStr string, cipherText ...string) {
 	}
 
 	t.Render()
+}
+
+func processPbeFile(filename, passStr string) {
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	text, err := Config{Passphrase: passStr}.PbeText(string(file))
+	if err != nil {
+		panic(err)
+	}
+
+	ft, _ := os.Stat(filename)
+
+	if err := ioutil.WriteFile(filename, []byte(text), ft.Mode()); err != nil {
+		panic(err)
+	}
+}
+
+func processPbeChgFile(filename, passStr, pbenew string) {
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	text, err := Config{Passphrase: passStr}.ChangePbe(string(file), pbenew)
+	if err != nil {
+		panic(err)
+	}
+
+	ft, _ := os.Stat(filename)
+
+	if err := ioutil.WriteFile(filename, []byte(text), ft.Mode()); err != nil {
+		panic(err)
+	}
+}
+
+func processEbpFile(filename, passStr string) {
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	text, err := Config{Passphrase: passStr}.EbpText(string(file))
+	if err != nil {
+		panic(err)
+	}
+
+	ft, _ := os.Stat(filename)
+
+	if err := ioutil.WriteFile(filename, []byte(text), ft.Mode()); err != nil {
+		panic(err)
+	}
 }
