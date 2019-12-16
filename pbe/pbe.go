@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mitchellh/go-homedir"
+
 	"github.com/bingoohuang/gou/file"
 
 	"github.com/jedib0t/go-pretty/table"
@@ -44,10 +46,25 @@ func Ebp(p string) (string, error) {
 	return Decrypt(p[len(pbePrefix):], pwd, iterations)
 }
 
+func isFilenameArg(args []string) (string, bool) {
+	if len(args) == 1 && strings.HasPrefix(args[0], "@") {
+		filename := args[0][1:]
+		if f, err := homedir.Expand(filename); err == nil {
+			filename = f
+		}
+
+		if file.Stat(filename) == file.Exists {
+			return filename, true
+		}
+	}
+
+	return "", false
+}
+
 // PrintEncrypt prints the PBE encryption.
 func PrintEncrypt(passStr string, plains ...string) {
-	if len(plains) == 1 && strings.HasPrefix(plains[0], "@") && file.Stat(plains[0][1:]) == file.Exists {
-		processPbeFile(plains[0][1:], passStr)
+	if filename, yes := isFilenameArg(plains); yes {
+		processPbeFile(filename, passStr)
 
 		return
 	}
@@ -71,8 +88,8 @@ func PrintEncrypt(passStr string, plains ...string) {
 
 // PrintDecrypt prints the PBE decryption.
 func PrintDecrypt(passStr string, cipherText ...string) {
-	if len(cipherText) == 1 && strings.HasPrefix(cipherText[0], "@") && file.Stat(cipherText[0][1:]) == file.Exists {
-		processEbpFile(cipherText[0][1:], passStr)
+	if filename, yes := isFilenameArg(cipherText); yes {
+		processEbpFile(filename, passStr)
 
 		return
 	}
@@ -115,6 +132,10 @@ func processPbeFile(filename, passStr string) {
 }
 
 func processPbeChgFile(filename, passStr, pbenew string) {
+	if f, err := homedir.Expand(filename); err == nil {
+		filename = f
+	}
+
 	file, err := ioutil.ReadFile(filename)
 	if err != nil {
 		panic(err)
