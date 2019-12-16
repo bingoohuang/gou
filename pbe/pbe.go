@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
+	homedir "github.com/mitchellh/go-homedir"
 
 	"github.com/bingoohuang/gou/file"
 

@@ -109,12 +109,20 @@ func (c Config) EbpText(s string) (string, error) {
 	return pbeRe.ReplaceAllStringFunc(s, f), err
 }
 
-// PbeText ...
+// PbeText will PBE encrypt the passwords in the text
+// passwords should be as any of following format and its converted pattern
+// 1. {PWD:clear} -> {PBE:cyphered}
+// 2. [PWD:clear] -> {PBE:cyphered}
+// 3. (PWD:clear) -> {PBE:cyphered}
+// 4. "PWD:clear" -> "{PBE:cyphered}"
+// 5.  PWD:clear  ->  {PBE:cyphered}
 func (c Config) PbeText(s string) (string, error) {
 	m := make(map[string]string)
 
 	pbed := ""
 	src := s
+
+	var err error
 
 	for {
 		pos := strings.Index(src, "PWD:")
@@ -142,16 +150,16 @@ func (c Config) PbeText(s string) (string, error) {
 		}
 
 		raw := src[pos+4 : pos+rpos+4]
+
+		pwd := ""
 		if v, ok := m[raw]; ok {
-			pbed += src[0:pos-1] + v
-			src = src[rpos+5:]
+			pwd = v
+		} else {
+			if pwd, err = c.Pbe(raw); err != nil {
+				return "", err
+			}
 
-			continue
-		}
-
-		pwd, err := c.Pbe(raw)
-		if err != nil {
-			return "", err
+			m[raw] = pwd
 		}
 
 		switch left {
@@ -160,7 +168,6 @@ func (c Config) PbeText(s string) (string, error) {
 			pwd = string(left) + pwd + expectRight
 		}
 
-		m[raw] = pwd
 		pbed += src[0:pos-1] + pwd
 		src = src[pos+rpos+5:]
 	}
