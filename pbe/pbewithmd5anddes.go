@@ -67,7 +67,7 @@ func DecryptSalt(cipherText, password, fixedSalt string, iterations int) (string
 }
 
 func doEncrypt(plainText, password string, salt []byte, iterations int) ([]byte, error) {
-	padNum := byte(8 - len(plainText)%8)
+	padNum := byte(8 - len(plainText)%8) // nolint gomnd
 	for i := byte(0); i < padNum; i++ {
 		plainText += string(padNum)
 	}

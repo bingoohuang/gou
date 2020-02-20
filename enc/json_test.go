@@ -12,7 +12,7 @@ func TestJSONCompact(t *testing.T) {
 		Value int
 	}{
 		Name:  "bingoo",
-		Value: 1000,
+		Value: 1000, // nolint gomnd
 	}))
 
 	assert.Equal(t, `{"spacedValue":"spaced value"}`, JSONCompact(`{ "spacedValue": "spaced value" }`))

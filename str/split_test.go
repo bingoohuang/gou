@@ -23,6 +23,7 @@ func TestSplitN(t *testing.T) {
 	a.Equal("", y)
 }
 
+// nolint gomnd
 func TestDecode(t *testing.T) {
 	a := assert.New(t)
 	a.Equal(2, Decode("a", "a", 2).(int))

@@ -94,6 +94,7 @@ func SetupLog() io.Writer {
 }
 
 // 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial
+// nolint gomnd
 func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Formatter) io.Writer {
 	baseLogPath := path.Join(logDir, filename)
 	writer, err := rotatelogs.New(

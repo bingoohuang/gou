@@ -59,7 +59,7 @@ func RandomPoemBasicAuth(fn http.HandlerFunc) http.HandlerFunc {
 			if err == nil {
 				pair := bytes.SplitN(payload, []byte(":"), 2)
 
-				if len(pair) == 2 {
+				if len(pair) == 2 { // nolint gomnd
 					user := string(pair[0])
 					pass := string(pair[1])
 
@@ -71,6 +71,7 @@ func RandomPoemBasicAuth(fn http.HandlerFunc) http.HandlerFunc {
 				}
 			}
 		}
+
 		w.Header().Set("Content-Type", "'Content-type:text/html;charset=ISO-8859-1'")
 		// 认证失败，提示 401 Unauthorized
 		w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)

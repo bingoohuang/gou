@@ -15,6 +15,7 @@ func ServeFavicon(path string, mustAsset func(name string) []byte,
 	return func(w http.ResponseWriter, r *http.Request) {
 		fi, _ := assetInfo(path)
 		buffer := bytes.NewReader(mustAsset(path))
+
 		w.Header().Set("Content-Type", gonet.DetectContentType(fi.Name()))
 		w.Header().Set("Last-Modified", fi.ModTime().UTC().Format(http.TimeFormat))
 		w.WriteHeader(http.StatusOK)

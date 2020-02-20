@@ -31,6 +31,7 @@ func Split4(s, sep string, trimSpace, ignoreEmpty bool) (s0, s1, s2, s3 string) 
 }
 
 // Split5 将s按分隔符sep分成x份，取第x份，取第1、2、3、4、5份
+// nolint gomnd
 func Split5(s, sep string, trimSpace, ignoreEmpty bool) (s0, s1, s2, s3, s4 string) {
 	parts := SplitN(s, sep, trimSpace, ignoreEmpty)
 	l := len(parts)

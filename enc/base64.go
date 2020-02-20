@@ -38,8 +38,8 @@ func Base64SafeDecode(source string) ([]byte, error) {
 	src = strings.Replace(src, "_", "/", -1)
 	src = strings.Replace(src, "-", "+", -1)
 
-	if i := len(src) % 4; i != 0 {
-		src += strings.Repeat("=", 4-i)
+	if i := len(src) % 4; i != 0 { // nolint gomnd
+		src += strings.Repeat("=", 4-i) // nolint gomnd
 	}
 
 	return base64.StdEncoding.DecodeString(src)

@@ -12,13 +12,13 @@ import (
 // OpenExplorerWithContext ...
 func OpenExplorerWithContext(contextPath, port string) {
 	go func() {
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond) // nolint gomnd
 
 		switch runtime.GOOS {
 		case "windows":
 			fallthrough
 		case "darwin":
-			_ = open.Run("http://127.0.0.1:" + port + contextPath + "/?" + ran.String(10))
+			_ = open.Run("http://127.0.0.1:" + port + contextPath + "/?" + ran.String(10)) // nolint gomnd
 		}
 	}()
 }

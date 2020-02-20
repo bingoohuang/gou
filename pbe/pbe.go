@@ -77,7 +77,7 @@ func PrintEncrypt(passStr string, plains ...string) {
 		pbed, err := Encrypt(p, passStr, iterations)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "pbe.Encrypt error %v", err)
-			os.Exit(1)
+			os.Exit(1) // nolint gomnd
 		}
 
 		t.AppendRow(table.Row{i + 1, p, pbePrefix + pbed})
@@ -104,7 +104,7 @@ func PrintDecrypt(passStr string, cipherText ...string) {
 		p, err := Decrypt(ebpx, passStr, iterations)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "pbe.Decrypt error %v", err)
-			os.Exit(1)
+			os.Exit(1) // nolint gomnd
 		}
 
 		t.AppendRow(table.Row{i + 1, ebp, p})

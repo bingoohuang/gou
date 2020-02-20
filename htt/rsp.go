@@ -23,7 +23,7 @@ func ErrHandled(err error, c *gin.Context) bool {
 		return false
 	}
 
-	c.JSON(200, RspBase{Status: 400, Message: err.Error()})
+	c.JSON(200, RspBase{Status: 400, Message: err.Error()}) // nolint gomnd
 
 	return true
 }

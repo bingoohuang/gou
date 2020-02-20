@@ -144,9 +144,11 @@ func MustAuth(fn http.HandlerFunc, param MustAuthParam, cookieContextKey interfa
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie := CookieValueImpl{}
 		err := ReadCookie(r, param.EncryptKey, param.CookieName, &cookie)
+
 		if err == nil && cookie.Name != "" {
 			ctx := context.WithValue(r.Context(), cookieContextKey, &cookie)
 			fn.ServeHTTP(w, r.WithContext(ctx))
+
 			return
 		}
 

@@ -27,7 +27,7 @@ func CheckUnknownPFlags() {
 	if args := pflag.Args(); len(args) > 0 {
 		fmt.Printf("Unknown args %s\n", strings.Join(args, " "))
 		pflag.PrintDefaults()
-		os.Exit(1)
+		os.Exit(1) // nolint gomnd
 	}
 }
 

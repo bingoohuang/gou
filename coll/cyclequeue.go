@@ -40,7 +40,7 @@ func (q *CycleQueue) FetchAll(index int) ([]interface{}, int) {
 	defer q.Mutex.Unlock()
 
 	if index < 0 {
-		index = mat.MaxInt(q.Counting-1, 0)
+		index = mat.MaxInt(q.Counting-1, 0) // nolint gomnd
 	}
 
 	nodes := make([]interface{}, 0)

@@ -84,7 +84,7 @@ func readInternal() {
 	pass, err := gopass.GetPasswdMasked()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "GetPasswd error %v", err)
-		os.Exit(1)
+		os.Exit(1) // nolint gomnd
 	}
 
 	pbePwd = string(pass)

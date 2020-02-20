@@ -116,12 +116,12 @@ func Fields(s string, count int) []string {
 }
 
 func fixLastField(a []string) []string {
-	lastIndex := len(a) - 1
+	lastIndex := len(a) - 1 // nolint gomnd
 	last := a[lastIndex]
 	stopPos := 0
 
 	for i := 0; i < len(last); i++ {
-		isSep := asciiSpace[last[i]] == 1
+		isSep := asciiSpace[last[i]] == 1 // nolint gomnd
 		if isSep {
 			if stopPos == 0 {
 				stopPos = i
@@ -208,7 +208,7 @@ func FieldsFunc(s string, count int, f func(rune) bool) []string {
 			wasField = true
 			fromIndex = i
 
-			if count == 1 {
+			if count == 1 { // nolint gomnd
 				break
 			}
 		}
@@ -229,7 +229,7 @@ func FieldsFunc(s string, count int, f func(rune) bool) []string {
 }
 
 func fixLastFieldFunc(a []string, f func(rune) bool) []string {
-	lastIndex := len(a) - 1
+	lastIndex := len(a) - 1 // nolint gomnd
 	last := a[lastIndex]
 	stopPos := 0
 

@@ -185,7 +185,7 @@ func FieldsFuncX(s, keepStart, keepEnd string, count int, f func(rune) bool) []s
 			wasField = true
 			fromIndex = i
 
-			if count == 1 {
+			if count == 1 { // nolint gomnd
 				break
 			}
 		}
