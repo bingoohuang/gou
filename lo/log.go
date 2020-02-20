@@ -7,9 +7,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"time"
 
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"
 
@@ -97,12 +95,7 @@ func SetupLog() io.Writer {
 // nolint gomnd
 func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Formatter) io.Writer {
 	baseLogPath := path.Join(logDir, filename)
-	writer, err := rotatelogs.New(
-		baseLogPath+".%Y%m%d%H%M",
-		rotatelogs.WithLinkName(baseLogPath),      // 生成软链，指向最新日志文件
-		rotatelogs.WithMaxAge(7*24*time.Hour),     // 文件最大保存时间
-		rotatelogs.WithRotationTime(24*time.Hour), // 日志切割时间间隔
-	)
+	writer, err := NewDailyFile(baseLogPath, 7) // 文件最大保存7天
 
 	if err != nil {
 		logrus.Errorf("config local file system logger error. %v", errors.WithStack(err))

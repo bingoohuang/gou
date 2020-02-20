@@ -10,15 +10,10 @@ require (
 	github.com/bingoohuang/goreflect v0.0.0-20200220033105-a0faf449f649
 	github.com/bingoohuang/now v0.0.0-20190715150822-ba8e4a91e3d9
 	github.com/bingoohuang/strcase v0.0.0-20190707081139-fae4a99e1218
-	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-openapi/strfmt v0.19.3 // indirect
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
-	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
-	github.com/lestrrat-go/envload v0.0.0-20180220234015-a3eb8ddeffcc // indirect
-	github.com/lestrrat-go/file-rotatelogs v2.2.0+incompatible
-	github.com/lestrrat-go/strftime v0.0.0-20180821113735-8b31f9c59b0f // indirect
 	github.com/magiconair/properties v1.8.1
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-runewidth v0.0.7 // indirect
@@ -38,7 +33,6 @@ require (
 	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tdewolff/test v1.0.6 // indirect
-	github.com/tebeka/strftime v0.0.0-20140926081919-3f9c7761e312 // indirect
 	github.com/tkrajina/go-reflector v0.5.1
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 )
