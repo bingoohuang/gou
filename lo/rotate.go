@@ -22,7 +22,7 @@ type DailyFile struct {
 	dir     string
 	file    *os.File
 
-	mu *sync.Mutex
+	mu sync.Mutex
 }
 
 // NewDailyFile create a daily rotation file
