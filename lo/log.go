@@ -61,7 +61,7 @@ func SetupLog() io.Writer {
 		formatter = &TextFormatter{
 			TextFormatter: prefixed.TextFormatter{
 				DisableColors:   true,
-				TimestampFormat: now.ConvertLayout("yyyyy-MM-dd HH:mm:ss.SSS"),
+				TimestampFormat: now.ConvertLayout("yyyy-MM-dd HH:mm:ss.SSS"),
 				FullTimestamp:   true,
 				ForceFormatting: true,
 			},

@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const yyyyMMdd = "yyyy-MM-dd"
+const yyyyMMdd = "yyyyMMdd"
 
 // DailyFile is a daily rotate file
 type DailyFile struct {
