@@ -1,6 +1,7 @@
 package lo
 
 import (
+	"flag"
 	"io"
 	"io/ioutil"
 	"os"
@@ -28,6 +29,14 @@ func DeclareLogPFlags() {
 	pflag.StringP("logdir", "", "var/logs", "log dir")
 	pflag.StringP("logfmt", "", "", "log format(text/json), default text")
 	pflag.BoolP("logrus", "", true, "enable logrus")
+}
+
+// DeclareLogFlags declares the log flags.
+func DeclareLogFlags() {
+	flag.String("loglevel", "info", "debug/info/warn/error")
+	flag.String("logdir", "var/logs", "log dir")
+	flag.String("logfmt", "", "log format(text/json), default text")
+	flag.Bool("logrus", true, "enable logrus")
 }
 
 // TextFormatter extends the prefixed.TextFormatter with line joining.
@@ -124,6 +133,4 @@ func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Fo
 type Discarder struct{}
 
 // Write implements io.Writer.
-func (d *Discarder) Write(b []byte) (int, error) {
-	return ioutil.Discard.Write(b)
-}
+func (d *Discarder) Write(b []byte) (int, error) { return ioutil.Discard.Write(b) }
