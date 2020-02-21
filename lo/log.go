@@ -1,33 +1,31 @@
 package lo
 
 import (
+	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"
 
 	"github.com/bingoohuang/gou/str"
-	"github.com/bingoohuang/now"
-
 	"github.com/spf13/pflag"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-
-	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 // DeclareLogPFlags declares the log pflags.
 func DeclareLogPFlags() {
 	pflag.StringP("loglevel", "", "info", "debug/info/warn/error")
 	pflag.StringP("logdir", "", "var/logs", "log dir")
-	pflag.StringP("logfmt", "", "", "log format(text/json), default text")
 	pflag.BoolP("logrus", "", true, "enable logrus")
 }
 
@@ -35,25 +33,35 @@ func DeclareLogPFlags() {
 func DeclareLogFlags() {
 	flag.String("loglevel", "info", "debug/info/warn/error")
 	flag.String("logdir", "var/logs", "log dir")
-	flag.String("logfmt", "", "log format(text/json), default text")
 	flag.Bool("logrus", true, "enable logrus")
 }
 
 // TextFormatter extends the prefixed.TextFormatter with line joining.
 type TextFormatter struct {
-	prefixed.TextFormatter
-	JoinLinesSeparator string
+	Skip            int
+	PrintCallerInfo bool
 }
 
 var reNewLines = regexp.MustCompile(`\r?\n`) // nolint
 
 // Format formats the log output.
 func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	if f.JoinLinesSeparator != "" {
-		entry.Message = reNewLines.ReplaceAllString(entry.Message, f.JoinLinesSeparator)
+	b := bytes.Buffer{}
+
+	b.WriteString(entry.Time.Format("2006-01-02 15:04:05.000") + " ")
+
+	if f.PrintCallerInfo {
+		// getting caller info - it's expensive.
+		if _, file, line, ok := runtime.Caller(f.Skip); ok {
+			//funcName := runtime.FuncForPC(pc).Name()
+			b.WriteString(fmt.Sprintf("%s:%d ", path.Base(file), line))
+		}
 	}
 
-	return f.TextFormatter.Format(entry)
+	b.WriteString("[" + entry.Level.String() + "] ")
+	b.WriteString(reNewLines.ReplaceAllString(entry.Message, ``) + "\n")
+
+	return b.Bytes(), nil
 }
 
 // SetupLog setup log parameters.
@@ -63,19 +71,12 @@ func SetupLog() io.Writer {
 		"debug", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
 		"error", logrus.ErrorLevel, logrus.InfoLevel).(logrus.Level))
 
-	var formatter logrus.Formatter
+	viper.SetDefault("ContextHookSkip", 7)
 
-	if viper.GetString("logfmt") != "json" {
-		// https://stackoverflow.com/a/48972299
-		formatter = &TextFormatter{
-			TextFormatter: prefixed.TextFormatter{
-				DisableColors:   true,
-				TimestampFormat: now.ConvertLayout("yyyy-MM-dd HH:mm:ss.SSS"),
-				FullTimestamp:   true,
-				ForceFormatting: true,
-			},
-			JoinLinesSeparator: `\n`,
-		}
+	// https://stackoverflow.com/a/48972299
+	formatter := &TextFormatter{
+		Skip:            viper.GetInt("ContextHookSkip"),
+		PrintCallerInfo: viper.GetBool("PrintCallerInfo"),
 	}
 
 	if !viper.GetBool("logrus") {
