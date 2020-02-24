@@ -7,14 +7,10 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
-const yyyyMMdd = "yyyyMMdd"
-
-// DailyFile is a daily rotate file
-type DailyFile struct {
+// RotateFile is a daily rotate file
+type RotateFile struct {
 	Filename   string
 	MaxBackups int
 
@@ -22,15 +18,40 @@ type DailyFile struct {
 	dir     string
 	file    *os.File
 
-	mu sync.Mutex
+	mu         sync.Mutex
+	TimeFormat string
+	Debug      bool
 }
 
-// NewDailyFile create a daily rotation file
-func NewDailyFile(filename string, maxBackups int) (*DailyFile, error) {
-	o := &DailyFile{
+// OptionFn defines options func prototype to set options for RotateFile.
+type OptionFn func(*RotateFile)
+
+// MaxBackups defines the max backups for the log files.
+func MaxBackups(maxBackups int) OptionFn {
+	return func(df *RotateFile) { df.MaxBackups = maxBackups }
+}
+
+// TimeFormat defines the backup file's postfix, like 20060102(yyyyMMdd) or 15:04:05 (HH:mm:ss)
+func TimeFormat(timeFormat string) OptionFn {
+	return func(df *RotateFile) { df.TimeFormat = timeFormat }
+}
+
+// Debug defines debug enabled or not.
+func Debug(debug bool) OptionFn {
+	return func(df *RotateFile) { df.Debug = debug }
+}
+
+// NewRotateFile create a daily rotation file
+func NewRotateFile(filename string, optionFns ...OptionFn) (*RotateFile, error) {
+	o := &RotateFile{
 		Filename:   filename,
-		MaxBackups: maxBackups,
+		MaxBackups: 7, // nolint gomnd
 		dir:        filepath.Dir(filename),
+		TimeFormat: `20060102`,
+	}
+
+	for _, fn := range optionFns {
+		fn(o)
 	}
 
 	if err := os.MkdirAll(o.dir, 0755); err != nil {
@@ -45,7 +66,7 @@ func NewDailyFile(filename string, maxBackups int) (*DailyFile, error) {
 }
 
 // Write writes data to a file
-func (o *DailyFile) Write(d []byte) (int, error) {
+func (o *RotateFile) Write(d []byte) (int, error) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
@@ -53,7 +74,7 @@ func (o *DailyFile) Write(d []byte) (int, error) {
 }
 
 // Flush flushes the file
-func (o *DailyFile) Flush() error {
+func (o *RotateFile) Flush() error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
@@ -61,43 +82,57 @@ func (o *DailyFile) Flush() error {
 }
 
 // Close closes the file
-func (o *DailyFile) Close() error {
+func (o *RotateFile) Close() error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
 	return o.close()
 }
 
-func (o *DailyFile) open() error {
+func (o *RotateFile) debug(format string, a ...interface{}) {
+	if !o.Debug {
+		return
+	}
+
+	if !strings.HasSuffix(format, "\n") {
+		format += "\n"
+	}
+
+	_, _ = fmt.Fprintf(os.Stderr, format, a...)
+}
+
+func (o *RotateFile) open() error {
 	f, err := os.OpenFile(o.Filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
+		o.debug("create file %s failed, error %+v", o.Filename, err)
 		return fmt.Errorf("log file %s created error %w", o.Filename, err)
 	}
 
-	o.file = f
+	o.debug("create file %s successfully", o.Filename)
 
-	logrus.Infof("log file %s created", o.Filename)
+	o.file = f
 
 	return nil
 }
 
-func (o *DailyFile) rotateFiles(t time.Time) error {
+func (o *RotateFile) rotateFiles(t time.Time) error {
 	rotated, outMaxBackups := o.detectRotate(t)
 
 	return o.doRotate(rotated, outMaxBackups)
 }
 
-func (o *DailyFile) doRotate(rotated string, outMaxBackups []string) error {
+func (o *RotateFile) doRotate(rotated string, outMaxBackups []string) error {
 	if rotated != "" {
 		if err := o.close(); err != nil {
 			return err
 		}
 
 		if err := os.Rename(o.Filename, rotated); err != nil {
+			o.debug("rotate %s to %s error %w", o.Filename, rotated, err)
 			return fmt.Errorf("rotate %s to %s error %w", o.Filename, rotated, err)
 		}
 
-		logrus.Infof("%s rotated to %s", o.Filename, rotated)
+		o.debug("rotate %s to %s successfully", o.Filename, rotated)
 
 		if err := o.open(); err != nil {
 			return err
@@ -106,16 +141,17 @@ func (o *DailyFile) doRotate(rotated string, outMaxBackups []string) error {
 
 	for _, old := range outMaxBackups {
 		if err := os.Remove(old); err != nil {
-			return fmt.Errorf("remove log file %s before max backup days %d error %v", old, o.MaxBackups, err)
+			o.debug("remove log file %s before max backup days %d error %v", old, o.MaxBackups, err)
+			return fmt.Errorf("remove log file %s before max backup %d error %v", old, o.MaxBackups, err)
 		}
 
-		logrus.Infof("%s before max backup days %d removed", old, o.MaxBackups)
+		o.debug("remove log file %s before max backup days %d successfully", old, o.MaxBackups)
 	}
 
 	return nil
 }
 
-func (o *DailyFile) close() error {
+func (o *RotateFile) close() error {
 	if o.file == nil {
 		return nil
 	}
@@ -126,34 +162,36 @@ func (o *DailyFile) close() error {
 	return err
 }
 
-func (o *DailyFile) detectRotate(t time.Time) (rotated string, outMaxBackups []string) {
-	ts := FormatTime(t, yyyyMMdd)
+func (o *RotateFile) detectRotate(t time.Time) (rotated string, outMaxBackups []string) {
+	day := t.Format(o.TimeFormat)
 
 	if o.lastDay == "" {
-		o.lastDay = ts
+		o.lastDay = day
 	}
 
-	if o.lastDay != ts {
-		o.lastDay = ts
+	prefix := o.Filename + "."
+
+	if o.lastDay != day {
+		o.lastDay = day
 
 		yesterday := t.AddDate(0, 0, -1)
-		rotated = o.Filename + "." + FormatTime(yesterday, yyyyMMdd)
+		rotated = prefix + yesterday.Format(o.TimeFormat)
 	}
 
 	if o.MaxBackups > 0 {
 		day := t.AddDate(0, 0, -o.MaxBackups)
-		_ = filepath.Walk(o.dir, func(path string, fi os.FileInfo, err error) error {
-			if err != nil || fi.IsDir() {
-				return err
+		_ = filepath.Walk(o.dir, func(p string, fi os.FileInfo, err error) error {
+			if err != nil || fi.IsDir() || !strings.HasPrefix(p, prefix) {
+				return nil
 			}
 
-			if strings.HasPrefix(path, o.Filename+".") {
-				fis := path[len(o.Filename+"."):]
-				if backDay, err := ParseTime(fis, yyyyMMdd); err != nil {
-					return nil // ignore this file
-				} else if backDay.Before(day) {
-					outMaxBackups = append(outMaxBackups, path)
-				}
+			fd, err := time.Parse(o.TimeFormat, p[len(prefix):])
+			if err != nil {
+				return nil // ignore this file
+			}
+
+			if fd.Before(day) {
+				outMaxBackups = append(outMaxBackups, p)
 			}
 
 			return nil
@@ -163,13 +201,12 @@ func (o *DailyFile) detectRotate(t time.Time) (rotated string, outMaxBackups []s
 	return rotated, outMaxBackups
 }
 
-func (o *DailyFile) write(d []byte, flush bool) (int, error) {
+func (o *RotateFile) write(d []byte, flush bool) (int, error) {
 	if err := o.rotateFiles(time.Now()); err != nil {
 		return 0, err
 	}
 
 	n, err := o.file.Write(d)
-
 	if err != nil {
 		return n, err
 	}
@@ -179,29 +216,4 @@ func (o *DailyFile) write(d []byte, flush bool) (int, error) {
 	}
 
 	return n, err
-}
-
-// ConvertTimeLayout converts date time format in java style to go style
-func ConvertTimeLayout(layout string) string {
-	l := layout
-	l = strings.Replace(l, "yyyy", "2006", -1)
-	l = strings.Replace(l, "yy", "06", -1)
-	l = strings.Replace(l, "MM", "01", -1)
-	l = strings.Replace(l, "dd", "02", -1)
-	l = strings.Replace(l, "HH", "15", -1)
-	l = strings.Replace(l, "mm", "04", -1)
-	l = strings.Replace(l, "ss", "05", -1)
-	l = strings.Replace(l, "SSS", "000", -1)
-
-	return l
-}
-
-// ParseTime 解析日期转字符串
-func ParseTime(d string, layout string) (time.Time, error) {
-	return time.Parse(ConvertTimeLayout(layout), d)
-}
-
-// FormatTime 日期转字符串
-func FormatTime(d time.Time, layout string) string {
-	return d.Format(ConvertTimeLayout(layout))
 }

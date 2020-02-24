@@ -104,9 +104,16 @@ func SetupLog() io.Writer {
 // 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial
 // nolint gomnd
 func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Formatter) io.Writer {
-	baseLogPath := path.Join(logDir, filename)
-	writer, err := NewDailyFile(baseLogPath, 7) // 文件最大保存7天
+	viper.SetDefault("logMaxBackups", 7)
+	viper.SetDefault("logDebug", false)
+	viper.SetDefault("logTimeFormat", "20160102")
 
+	maxBackups := viper.GetInt("logMaxBackups")
+	timeFormat := viper.GetString("logTimeFormat")
+	logDebug := viper.GetBool("logDebug")
+
+	writer, err := NewRotateFile(filepath.Join(logDir, filename),
+		MaxBackups(maxBackups), TimeFormat(timeFormat), Debug(logDebug))
 	if err != nil {
 		logrus.Errorf("config local file system logger error. %v", errors.WithStack(err))
 	}
