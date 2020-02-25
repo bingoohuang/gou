@@ -11,12 +11,12 @@ import (
 
 // RotateFile is a daily rotate file
 type RotateFile struct {
-	Filename   string
-	MaxBackups int
+	Filename       string
+	MaxBackupsDays int
 
-	lastDay string
-	dir     string
-	file    *os.File
+	lastTime string
+	dir      string
+	file     *os.File
 
 	mu         sync.Mutex
 	TimeFormat string
@@ -26,9 +26,9 @@ type RotateFile struct {
 // OptionFn defines options func prototype to set options for RotateFile.
 type OptionFn func(*RotateFile)
 
-// MaxBackups defines the max backups for the log files.
-func MaxBackups(maxBackups int) OptionFn {
-	return func(df *RotateFile) { df.MaxBackups = maxBackups }
+// MaxBackupsDays defines the max backups for the log files.
+func MaxBackupsDays(maxBackupsDays int) OptionFn {
+	return func(df *RotateFile) { df.MaxBackupsDays = maxBackupsDays }
 }
 
 // TimeFormat defines the backup file's postfix, like 20060102(yyyyMMdd) or 15:04:05 (HH:mm:ss)
@@ -37,17 +37,15 @@ func TimeFormat(timeFormat string) OptionFn {
 }
 
 // Debug defines debug enabled or not.
-func Debug(debug bool) OptionFn {
-	return func(df *RotateFile) { df.Debug = debug }
-}
+func Debug(debug bool) OptionFn { return func(df *RotateFile) { df.Debug = debug } }
 
 // NewRotateFile create a daily rotation file
 func NewRotateFile(filename string, optionFns ...OptionFn) (*RotateFile, error) {
 	o := &RotateFile{
-		Filename:   filename,
-		MaxBackups: 7, // nolint gomnd
-		dir:        filepath.Dir(filename),
-		TimeFormat: `20060102`,
+		Filename:       filename,
+		MaxBackupsDays: 7, // nolint gomnd
+		dir:            filepath.Dir(filename),
+		TimeFormat:     `20060102`,
 	}
 
 	for _, fn := range optionFns {
@@ -141,11 +139,11 @@ func (o *RotateFile) doRotate(rotated string, outMaxBackups []string) error {
 
 	for _, old := range outMaxBackups {
 		if err := os.Remove(old); err != nil {
-			o.debug("remove log file %s before max backup days %d error %v", old, o.MaxBackups, err)
-			return fmt.Errorf("remove log file %s before max backup %d error %v", old, o.MaxBackups, err)
+			o.debug("remove log file %s before max backup days %d error %v", old, o.MaxBackupsDays, err)
+			return fmt.Errorf("remove log file %s before max backup %d error %v", old, o.MaxBackupsDays, err)
 		}
 
-		o.debug("remove log file %s before max backup days %d successfully", old, o.MaxBackups)
+		o.debug("remove log file %s before max backup days %d successfully", old, o.MaxBackupsDays)
 	}
 
 	return nil
@@ -163,23 +161,21 @@ func (o *RotateFile) close() error {
 }
 
 func (o *RotateFile) detectRotate(t time.Time) (rotated string, outMaxBackups []string) {
-	day := t.Format(o.TimeFormat)
+	writeTime := t.Format(o.TimeFormat)
 
-	if o.lastDay == "" {
-		o.lastDay = day
+	if o.lastTime == "" {
+		o.lastTime = writeTime
 	}
 
 	prefix := o.Filename + "."
 
-	if o.lastDay != day {
-		o.lastDay = day
-
-		yesterday := t.AddDate(0, 0, -1)
-		rotated = prefix + yesterday.Format(o.TimeFormat)
+	if o.lastTime != writeTime {
+		rotated = prefix + o.lastTime
+		o.lastTime = writeTime
 	}
 
-	if o.MaxBackups > 0 {
-		day := t.AddDate(0, 0, -o.MaxBackups)
+	if o.MaxBackupsDays > 0 {
+		day := t.AddDate(0, 0, -o.MaxBackupsDays)
 		_ = filepath.Walk(o.dir, func(p string, fi os.FileInfo, err error) error {
 			if err != nil || fi.IsDir() || !strings.HasPrefix(p, prefix) {
 				return nil

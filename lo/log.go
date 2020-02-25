@@ -108,12 +108,12 @@ func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Fo
 	viper.SetDefault("logDebug", false)
 	viper.SetDefault("logTimeFormat", "20060102")
 
-	maxBackups := viper.GetInt("logMaxBackups")
+	maxBackupsDays := viper.GetInt("logMaxBackupsDays")
 	timeFormat := viper.GetString("logTimeFormat")
 	logDebug := viper.GetBool("logDebug")
 
 	writer, err := NewRotateFile(filepath.Join(logDir, filename),
-		MaxBackups(maxBackups), TimeFormat(timeFormat), Debug(logDebug))
+		MaxBackupsDays(maxBackupsDays), TimeFormat(timeFormat), Debug(logDebug))
 	if err != nil {
 		logrus.Errorf("config local file system logger error. %v", errors.WithStack(err))
 	}

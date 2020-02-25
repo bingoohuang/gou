@@ -10,7 +10,7 @@ import (
 // nolint gomnd
 func TestRotateFile(t *testing.T) {
 	file, err := NewRotateFile("./var/logs/my.log",
-		MaxBackups(3),
+		MaxBackupsDays(3),
 		TimeFormat("20060102150405"))
 	_ = file.Close()
 
