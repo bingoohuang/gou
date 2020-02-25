@@ -106,7 +106,7 @@ func SetupLog() io.Writer {
 func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Formatter) io.Writer {
 	viper.SetDefault("logMaxBackups", 7)
 	viper.SetDefault("logDebug", false)
-	viper.SetDefault("logTimeFormat", "20160102")
+	viper.SetDefault("logTimeFormat", "20060102")
 
 	maxBackups := viper.GetInt("logMaxBackups")
 	timeFormat := viper.GetString("logTimeFormat")

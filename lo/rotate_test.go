@@ -11,7 +11,7 @@ import (
 func TestRotateFile(t *testing.T) {
 	file, err := NewRotateFile("./var/logs/my.log",
 		MaxBackups(3),
-		TimeFormat("20160102150405"))
+		TimeFormat("20060102150405"))
 	_ = file.Close()
 
 	assert.Nil(t, err)
