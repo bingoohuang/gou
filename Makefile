@@ -1,7 +1,6 @@
 .PHONY: default install test
 all: default install test
 
-APPNAME=sysinfo
 VERSION=v1.0.0
 
 gosec:
@@ -19,31 +18,8 @@ default: proxy
 	go fmt ./...&&revive .&&goimports -w .&&golangci-lint run --enable-all
 
 install: proxy
-	packr2
 	go install -ldflags="-s -w" ./...
-	ls -lh ~/go/bin/$(APPNAME)
-	upx ~/go/bin/$(APPNAME)
-	ls -lh ~/go/bin/$(APPNAME)
-package: install
-	mv ~/go/bin/$(APPNAME) ~/go/bin/$(APPNAME)-$(VERSION)-darwin-amd64
-	gzip -f ~/go/bin/$(APPNAME)-$(VERSION)-darwin-amd64
-	ls -lh ~/go/bin/$(APPNAME)*
 
-# https://hub.docker.com/_/golang
-# docker run --rm -v "$PWD":/usr/src/myapp -v "$HOME/dockergo":/go -w /usr/src/myapp golang make docker
-# docker run --rm -it -v "$PWD":/usr/src/myapp -w /usr/src/myapp golang bash
-# 静态连接 glibc
-docker:
-	docker run --rm -v "$$PWD":/usr/src/myapp -v "$$HOME/dockergo":/go -w /usr/src/myapp golang make dockerinstall
-	ls -lh ~/dockergo/bin/$(APPNAME)
-	upx ~/dockergo/bin/$(APPNAME)
-	ls -lh ~/dockergo/bin/$(APPNAME)
-	mv ~/dockergo/bin/$(APPNAME)  ~/dockergo/bin/$(APPNAME)-$(VERSION)-amd64-glibc2.28
-	gzip -f ~/dockergo/bin/$(APPNAME)-$(VERSION)-amd64-glibc2.28
-	ls -lh ~/dockergo/bin/$(APPNAME)*
-
-dockerinstall: proxy
-	go install -v -x -a -ldflags '-extldflags "-static" -s -w' ./...
 
 test: proxy
 	go test ./...
