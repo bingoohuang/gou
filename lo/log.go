@@ -12,6 +12,8 @@ import (
 	"regexp"
 	"runtime"
 
+	"github.com/bingoohuang/gou/sy"
+
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"
 
@@ -24,14 +26,14 @@ import (
 
 // DeclareLogPFlags declares the log pflags.
 func DeclareLogPFlags() {
-	pflag.StringP("loglevel", "", "info", "debug/info/warn/error")
+	pflag.StringP("loglevel", "", "info", "debugf/info/warn/error")
 	pflag.StringP("logdir", "", "var/logs", "log dir")
 	pflag.BoolP("logrus", "", true, "enable logrus")
 }
 
 // DeclareLogFlags declares the log flags.
 func DeclareLogFlags() {
-	flag.String("loglevel", "info", "debug/info/warn/error")
+	flag.String("loglevel", "info", "debugf/info/warn/error")
 	flag.String("logdir", "var/logs", "log dir")
 	flag.Bool("logrus", true, "enable logrus")
 }
@@ -58,6 +60,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
+	b.WriteString(fmt.Sprintf("[%s] ", sy.CurGoroutineIDString()))
 	b.WriteString("[" + entry.Level.String() + "] ")
 	b.WriteString(reNewLines.ReplaceAllString(entry.Message, ``) + "\n")
 
@@ -68,7 +71,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 func SetupLog() io.Writer {
 	loglevel := viper.GetString("loglevel")
 	logrus.SetLevel(str.Decode(loglevel,
-		"debug", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
+		"debugf", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
 		"error", logrus.ErrorLevel, logrus.InfoLevel).(logrus.Level))
 
 	viper.SetDefault("ContextHookSkip", 7)
@@ -92,7 +95,7 @@ func SetupLog() io.Writer {
 		}
 
 		return initLogger(str.Decode(loglevel,
-			"debug", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
+			"debugf", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
 			"error", logrus.ErrorLevel, logrus.InfoLevel).(logrus.Level), logdir, filepath.Base(os.Args[0])+".log", formatter)
 	}
 

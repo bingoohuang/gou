@@ -36,7 +36,7 @@ func TimeFormat(timeFormat string) OptionFn {
 	return func(df *RotateFile) { df.TimeFormat = timeFormat }
 }
 
-// Debug defines debug enabled or not.
+// Debug defines debugf enabled or not.
 func Debug(debug bool) OptionFn { return func(df *RotateFile) { df.Debug = debug } }
 
 // NewRotateFile create a daily rotation file
@@ -87,7 +87,7 @@ func (o *RotateFile) Close() error {
 	return o.close()
 }
 
-func (o *RotateFile) debug(format string, a ...interface{}) {
+func (o *RotateFile) debugf(format string, a ...interface{}) {
 	if !o.Debug {
 		return
 	}
@@ -102,11 +102,11 @@ func (o *RotateFile) debug(format string, a ...interface{}) {
 func (o *RotateFile) open() error {
 	f, err := os.OpenFile(o.Filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
-		o.debug("create file %s failed, error %+v", o.Filename, err)
+		o.debugf("create file %s failed, error %+v", o.Filename, err)
 		return fmt.Errorf("log file %s created error %w", o.Filename, err)
 	}
 
-	o.debug("create file %s successfully", o.Filename)
+	o.debugf("create file %s successfully", o.Filename)
 
 	o.file = f
 
@@ -126,11 +126,11 @@ func (o *RotateFile) doRotate(rotated string, outMaxBackups []string) error {
 		}
 
 		if err := os.Rename(o.Filename, rotated); err != nil {
-			o.debug("rotate %s to %s error %w", o.Filename, rotated, err)
+			o.debugf("rotate %s to %s error %w", o.Filename, rotated, err)
 			return fmt.Errorf("rotate %s to %s error %w", o.Filename, rotated, err)
 		}
 
-		o.debug("rotate %s to %s successfully", o.Filename, rotated)
+		o.debugf("rotate %s to %s successfully", o.Filename, rotated)
 
 		if err := o.open(); err != nil {
 			return err
@@ -139,11 +139,11 @@ func (o *RotateFile) doRotate(rotated string, outMaxBackups []string) error {
 
 	for _, old := range outMaxBackups {
 		if err := os.Remove(old); err != nil {
-			o.debug("remove log file %s before max backup days %d error %v", old, o.MaxBackupsDays, err)
+			o.debugf("remove log file %s before max backup days %d error %v", old, o.MaxBackupsDays, err)
 			return fmt.Errorf("remove log file %s before max backup %d error %v", old, o.MaxBackupsDays, err)
 		}
 
-		o.debug("remove log file %s before max backup days %d successfully", old, o.MaxBackupsDays)
+		o.debugf("remove log file %s before max backup days %d successfully", old, o.MaxBackupsDays)
 	}
 
 	return nil

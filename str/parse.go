@@ -3,7 +3,10 @@ package str
 import "strconv"
 
 // ParseFloat32E ...
-func ParseFloat32E(s string) (float32, error) { f, e := strconv.ParseFloat(s, 32); return float32(f), e }
+func ParseFloat32E(s string) (float32, error) {
+	f, e := strconv.ParseFloat(s, 32)
+	return float32(f), e
+}
 
 // ParseFloat64E ...
 func ParseFloat64E(s string) (float64, error) { return strconv.ParseFloat(s, 64) }
