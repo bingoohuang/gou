@@ -43,18 +43,23 @@ func GetFileMode(name string) (DirMode, error) {
 	return SingleFileMode, nil
 }
 
-// WriteBytes write byte array to file
+// WriteBytes writes byte slice to file.
 func WriteBytes(filePath string, b []byte) (int, error) {
-	os.MkdirAll(path.Dir(filePath), os.ModePerm)
+	if err := os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
+		return 0, err
+	}
+
 	fw, err := os.Create(filePath)
 	if err != nil {
 		return 0, err
 	}
+
 	defer fw.Close()
+
 	return fw.Write(b)
 }
 
-// WriteString write string to file
+// WriteString writes string to file.
 func WriteString(filePath string, s string) (int, error) {
 	return WriteBytes(filePath, []byte(s))
 }
