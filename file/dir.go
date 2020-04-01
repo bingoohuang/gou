@@ -69,3 +69,11 @@ func DirsUnder(dirPath string) ([]string, error) {
 
 	return ret, nil
 }
+
+// InsureDir insure dir exist
+func InsureDir(fp string) error {
+	if IsExist(fp) {
+		return nil
+	}
+	return os.MkdirAll(fp, os.ModePerm)
+}
