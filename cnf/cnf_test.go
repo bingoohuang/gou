@@ -39,9 +39,11 @@ func TestDeclarePflagsByStruct(t *testing.T) {
 
 	plfagMap := make(map[string]*pflag.Flag)
 
-	pflag.VisitAll(func(f *pflag.Flag) { plfagMap[f.Name] = f })
+	pflag.VisitAll(func(f *pflag.Flag) {
+		plfagMap[f.Name] = f
+	})
 
-	assert.Contains(t, plfagMap, "postURL")
+	assert.Contains(t, plfagMap, "postUrl")
 	assert.Contains(t, plfagMap, "matches")
 
 	viper.Set("Matches", "a,b,c")

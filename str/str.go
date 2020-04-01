@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bingoohuang/goreflect"
+	"github.com/bingoohuang/gor"
 )
 
 // HasPrefix tells s has any prefix of p...
@@ -149,7 +149,7 @@ func StringContains(container, item, sep, absolute string) bool {
 
 	items := strings.Split(container, sep)
 
-	return goreflect.SliceContains(items, item)
+	return gor.SliceContains(items, item)
 }
 
 // If 代替三元表达式 c ? a : b

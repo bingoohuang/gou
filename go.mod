@@ -7,14 +7,13 @@ require (
 	github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195
 	github.com/averagesecurityguy/random v0.0.0-20180326012618-37cce341d2af
 	github.com/bingoohuang/gonet v0.0.0-20190716021716-fd516efe8b31
-	github.com/bingoohuang/goreflect v0.0.0-20200220033105-a0faf449f649
-	github.com/bingoohuang/strcase v0.0.0-20190707081139-fae4a99e1218
-	github.com/gin-gonic/gin v1.4.0
+	github.com/bingoohuang/gor v0.0.0-20200321095356-94cf6290c6ea
+	github.com/bingoohuang/strcase v0.0.0-20200312105414-ac2c85cfc85d
+	github.com/gin-gonic/gin v1.5.0
 	github.com/go-openapi/strfmt v0.19.3 // indirect
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/magiconair/properties v1.8.1
-	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.4.0
