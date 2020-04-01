@@ -3,6 +3,7 @@ package file
 import (
 	"fmt"
 	"os"
+	"path"
 )
 
 // SingleFileExists 检查文件是否存在，并且不是目录
@@ -40,4 +41,20 @@ func GetFileMode(name string) (DirMode, error) {
 	}
 
 	return SingleFileMode, nil
+}
+
+// WriteBytes write byte array to file
+func WriteBytes(filePath string, b []byte) (int, error) {
+	os.MkdirAll(path.Dir(filePath), os.ModePerm)
+	fw, err := os.Create(filePath)
+	if err != nil {
+		return 0, err
+	}
+	defer fw.Close()
+	return fw.Write(b)
+}
+
+// WriteString write string to file
+func WriteString(filePath string, s string) (int, error) {
+	return WriteBytes(filePath, []byte(s))
 }
