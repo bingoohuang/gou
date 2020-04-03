@@ -12,7 +12,7 @@ import (
 	"regexp"
 	"runtime"
 
-	"github.com/bingoohuang/gou/sy"
+	"github.com/bingoohuang/gou/lang"
 
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"
@@ -60,7 +60,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	b.WriteString(fmt.Sprintf("[%s] ", sy.CurGoroutineIDString()))
+	b.WriteString(fmt.Sprintf("[%s] ", lang.CurGoroutineID()))
 	b.WriteString("[" + entry.Level.String() + "] ")
 	b.WriteString(reNewLines.ReplaceAllString(entry.Message, ``) + "\n")
 

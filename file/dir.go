@@ -58,6 +58,7 @@ func DirsUnder(dirPath string) ([]string, error) {
 	}
 
 	ret := make([]string, 0, sz)
+
 	for i := 0; i < sz; i++ {
 		if fs[i].IsDir() {
 			name := fs[i].Name()
@@ -75,5 +76,6 @@ func InsureDir(fp string) error {
 	if IsExist(fp) {
 		return nil
 	}
+
 	return os.MkdirAll(fp, os.ModePerm)
 }
