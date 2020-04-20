@@ -1,6 +1,9 @@
 package str
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 // ParseFloat32E ...
 func ParseFloat32E(s string) (float32, error) {
@@ -76,3 +79,29 @@ func ParseInt(s string) int { f, _ := ParseIntE(s); return f }
 
 // ParseUint ...
 func ParseUint(s string) uint { f, _ := ParseUintE(s); return f }
+
+// ParseBool returns the boolean value represented by the string.
+// It accepts 1, t, true, y, yes, on with camel case incentive.
+func ParseBool(s string) bool {
+	switch strings.ToLower(s) {
+	case "1", "t", "true", "y", "yes", "on":
+		return true
+	}
+
+	return false
+}
+
+// ParseBoolE returns the boolean value represented by the string.
+// It accepts 1, t, true, y, yes, on as true with camel case incentive
+// and accepts 0, f false, n, no, off as false with camel case incentive
+// Any other value returns an error.
+func ParseBoolE(s string) (bool, error) {
+	switch strings.ToLower(s) {
+	case "1", "t", "true", "y", "yes", "on":
+		return true, nil
+	case "0", "f", "false", "n", "no", "off":
+		return false, nil
+	}
+
+	return false, &strconv.NumError{Func: "ParseBoolE", Num: s, Err: strconv.ErrSyntax}
+}
