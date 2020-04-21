@@ -79,13 +79,13 @@ func FindFile(cnfFile string) (string, error) {
 
 // LoadE similar to Load.
 func LoadE(cnfFile string, values ...interface{}) error {
-	file, err := FindFile(cnfFile)
+	f, err := FindFile(cnfFile)
 	if err != nil {
 		return fmt.Errorf("FindFile error %w", err)
 	}
 
 	for _, value := range values {
-		if _, err = toml.DecodeFile(file, value); err != nil {
+		if _, err = toml.DecodeFile(f, value); err != nil {
 			return fmt.Errorf("DecodeFile error %w", err)
 		}
 	}
@@ -210,18 +210,18 @@ func DeclarePflagsByStruct(structVars ...interface{}) {
 
 			name := strcase.ToCamelLower(f.Name())
 			tag := str.DecodeTag(str.PickFirst(f.Tag("pflag")))
-			usage := tag.Main
 			shorthand := tag.GetOpt("shorthand")
+			defaultValue := tag.GetOpt("default")
 
 			switch t, _ := f.Get(); t.(type) {
 			case []string:
-				pflag.StringP(name, shorthand, "", usage)
+				pflag.StringP(name, shorthand, defaultValue, tag.Main)
 			case string:
-				pflag.StringP(name, shorthand, "", usage)
+				pflag.StringP(name, shorthand, defaultValue, tag.Main)
 			case int:
-				pflag.IntP(name, shorthand, 0, usage)
+				pflag.IntP(name, shorthand, str.ParseInt(defaultValue), tag.Main)
 			case bool:
-				pflag.BoolP(name, shorthand, false, usage)
+				pflag.BoolP(name, shorthand, str.ParseBool(defaultValue), tag.Main)
 			}
 		}
 	}
