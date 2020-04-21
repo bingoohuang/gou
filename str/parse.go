@@ -3,6 +3,8 @@ package str
 import (
 	"strconv"
 	"strings"
+	"time"
+	"unicode"
 )
 
 // ParseFloat32E ...
@@ -104,4 +106,27 @@ func ParseBoolE(s string) (bool, error) {
 	}
 
 	return false, &strconv.NumError{Func: "ParseBoolE", Num: s, Err: strconv.ErrSyntax}
+}
+
+// ParseDuration ...
+func ParseDuration(s string) time.Duration { f, _ := ParseDurationE(s); return f }
+
+// ParseDurationE ...
+func ParseDurationE(s string) (time.Duration, error) {
+	return time.ParseDuration(StripSpaces(s))
+}
+
+// StripSpaces strips all spaces from the string.
+func StripSpaces(str string) string {
+	var b strings.Builder
+
+	b.Grow(len(str))
+
+	for _, ch := range str {
+		if !unicode.IsSpace(ch) {
+			b.WriteRune(ch)
+		}
+	}
+
+	return b.String()
 }

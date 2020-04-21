@@ -26,7 +26,7 @@ func DecodeTag(rawTag string) Tag {
 	opts := make(map[string]string)
 	mainPart := ""
 
-	re := regexp.MustCompile(`(\w+)\s*=\s*(\w+)`)
+	re := regexp.MustCompile(`\s+(\w+)\s*=\s*(\w+)`)
 	submatchIndex := re.FindAllStringSubmatchIndex(rawTag, -1)
 
 	if submatchIndex == nil {
