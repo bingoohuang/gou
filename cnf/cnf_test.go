@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -29,6 +30,8 @@ type Post struct {
 	Other   string
 	CaptureConfig
 
+	Interval time.Duration `pflag:"interval config before running. shorthand=I default=60s"`
+
 	_ *http.Client
 	_ *url.URL
 	_ url.Values
@@ -45,9 +48,11 @@ func TestDeclarePflagsByStruct(t *testing.T) {
 
 	assert.Contains(t, plfagMap, "postUrl")
 	assert.Contains(t, plfagMap, "matches")
+	assert.Contains(t, plfagMap, "interval")
 
 	viper.Set("Matches", "a,b,c")
 	viper.Set("PostURL", "https://a.b.c")
+	viper.Set("Interval", "30s")
 
 	p := &Post{Other: "bingoo"}
 	ViperToStruct(p)
@@ -55,4 +60,5 @@ func TestDeclarePflagsByStruct(t *testing.T) {
 	assert.Equal(t, []string{"a", "b", "c"}, p.Matches)
 	assert.Equal(t, "https://a.b.c", p.PostURL)
 	assert.Equal(t, "bingoo", p.Other)
+	assert.Equal(t, 30*time.Second, p.Interval)
 }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/bingoohuang/gou/file"
 
@@ -146,24 +147,32 @@ func viperObjectFieldsValue(pValue reflect.Value, separator string) {
 			continue
 		}
 
-		name := strcase.ToCamelLower(ft.Name)
+		setField(strcase.ToCamelLower(ft.Name), fv, separator)
+	}
+}
 
-		switch ft.Type.Kind() {
-		case reflect.Slice:
-			if v := strings.TrimSpace(viper.GetString(name)); v != "" {
-				fv.Set(reflect.ValueOf(str.SplitX(v, separator)))
-			}
-		case reflect.String:
-			if v := strings.TrimSpace(viper.GetString(name)); v != "" {
-				fv.SetString(v)
-			}
-		case reflect.Int:
-			if v := viper.GetInt(name); v != 0 {
-				fv.SetInt(int64(v))
-			}
-		case reflect.Bool:
-			if v := viper.GetBool(name); v {
-				fv.SetBool(v)
+func setField(name string, fv reflect.Value, separator string) {
+	switch ft := fv.Type(); ft.Kind() {
+	case reflect.Slice:
+		if v := strings.TrimSpace(viper.GetString(name)); v != "" {
+			fv.Set(reflect.ValueOf(str.SplitX(v, separator)))
+		}
+	case reflect.String:
+		if v := strings.TrimSpace(viper.GetString(name)); v != "" {
+			fv.SetString(v)
+		}
+	case reflect.Int:
+		if v := viper.GetInt(name); v != 0 {
+			fv.SetInt(int64(v))
+		}
+	case reflect.Bool:
+		if v := viper.GetBool(name); v {
+			fv.SetBool(v)
+		}
+	default:
+		if v := viper.GetString(name); v != "" {
+			if ft == reflect.TypeOf(time.Second) {
+				fv.Set(reflect.ValueOf(str.ParseDuration(v)))
 			}
 		}
 	}
@@ -214,14 +223,12 @@ func DeclarePflagsByStruct(structVars ...interface{}) {
 			defaultValue := tag.GetOpt("default")
 
 			switch t, _ := f.Get(); t.(type) {
-			case []string:
-				pflag.StringP(name, shorthand, defaultValue, tag.Main)
-			case string:
-				pflag.StringP(name, shorthand, defaultValue, tag.Main)
 			case int:
 				pflag.IntP(name, shorthand, str.ParseInt(defaultValue), tag.Main)
 			case bool:
 				pflag.BoolP(name, shorthand, str.ParseBool(defaultValue), tag.Main)
+			default: // string, []string, time.Interval:
+				pflag.StringP(name, shorthand, defaultValue, tag.Main)
 			}
 		}
 	}
