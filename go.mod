@@ -3,12 +3,12 @@ module github.com/bingoohuang/gou
 go 1.13
 
 require (
-	github.com/BurntSushi/toml v0.3.1
 	github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195
 	github.com/averagesecurityguy/random v0.0.0-20180326012618-37cce341d2af
 	github.com/bingoohuang/gonet v0.0.0-20190716021716-fd516efe8b31
 	github.com/bingoohuang/gor v0.0.0-20200321095356-94cf6290c6ea
 	github.com/bingoohuang/strcase v0.0.0-20200312105414-ac2c85cfc85d
+	github.com/bingoohuang/toml v0.0.0-20200422103751-d93794558fab
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-openapi/strfmt v0.19.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.0
@@ -26,7 +26,7 @@ require (
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.6.1
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tdewolff/test v1.0.6 // indirect

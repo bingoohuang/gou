@@ -16,7 +16,7 @@ import (
 	"github.com/bingoohuang/gou/str"
 	"github.com/bingoohuang/strcase"
 
-	"github.com/BurntSushi/toml"
+	"github.com/bingoohuang/toml"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
