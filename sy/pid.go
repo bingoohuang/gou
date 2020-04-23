@@ -10,7 +10,13 @@ import (
 
 // UpdatePidFile update the pid to pidFile like var/pid (kill -USR2 {pid} 会执行重启)
 // If pidFile is empty, it will try env PID_FILE' value, then to "var/pid" file.
-func UpdatePidFile(pidFile string) error {
+func UpdatePidFile(pidFileVars ...string) error {
+	pidFile := ""
+
+	if len(pidFileVars) > 0 {
+		pidFile = pidFileVars[0]
+	}
+
 	if pidFile == "" {
 		pidFile = os.Getenv("PID_FILE")
 	}
