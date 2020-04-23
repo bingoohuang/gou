@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/bingoohuang/gou/str"
+	"github.com/mitchellh/go-homedir"
+
 	"github.com/bingoohuang/gou/lang"
 	"github.com/pkg/errors"
 )
@@ -91,20 +94,22 @@ func WriteTime(filename string, v time.Time) error {
 }
 
 func ReadValue(filename, defaultValue string) (string, error) {
-	stat, err := StatE(filename)
+	f := HomeDirExpand(filename)
+	stat, err := StatE(f)
+
 	if err != nil {
-		return "", errors.Wrapf(err, "file.Stat %s", filename)
+		return "", errors.Wrapf(err, "file.Stat %s", f)
 	}
 
 	if stat == NotExists || stat == Unknown {
-		if err := WriteValue(filename, defaultValue); err != nil {
+		if err := WriteValue(f, defaultValue); err != nil {
 			return "", err
 		}
 	}
 
-	content, err := ioutil.ReadFile(filename)
+	content, err := ioutil.ReadFile(f)
 	if err != nil {
-		return "", errors.Wrapf(err, "ioutil.ReadFile %s", filename)
+		return "", errors.Wrapf(err, "ioutil.ReadFile %s", f)
 	}
 
 	return string(content), nil
@@ -112,14 +117,21 @@ func ReadValue(filename, defaultValue string) (string, error) {
 
 // WritValue writes a string value to the file.
 func WriteValue(filename string, value string) error {
-	dir := filepath.Dir(filename)
+	f := HomeDirExpand(filename)
+
+	dir := filepath.Dir(f)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return errors.Wrapf(err, "MkdirAll %s", dir)
 	}
 
-	if err := ioutil.WriteFile(filename, []byte(value), 0644); err != nil {
-		return errors.Wrapf(err, "WriteFile %s", filename)
+	if err := ioutil.WriteFile(f, []byte(value), 0644); err != nil {
+		return errors.Wrapf(err, "WriteFile %s", f)
 	}
 
 	return nil
+}
+
+// HomeDirExpand expands the ~(home directory) from the dir.
+func HomeDirExpand(dir string) string {
+	return str.PickFirst(homedir.Expand(dir))
 }
