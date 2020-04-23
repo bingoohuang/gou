@@ -130,3 +130,14 @@ func StripSpaces(str string) string {
 
 	return b.String()
 }
+
+// HasSpaces test if any spaces in the string.
+func HasSpaces(str string) bool {
+	for _, ch := range str {
+		if unicode.IsSpace(ch) {
+			return true
+		}
+	}
+
+	return false
+}

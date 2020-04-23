@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -249,4 +250,19 @@ func Repeat(s, sep string, times int) string {
 	}
 
 	return str
+}
+
+// TryQuote tries to quote the string if there is control characters or non-printable characters as defined by IsPrint.
+func TryQuote(s string, chars string) string {
+	q := strconv.Quote(s)
+
+	if HasSpaces(s) || strings.ContainsAny(s, chars) {
+		return q
+	}
+
+	if q[1:len(q)-1] == s {
+		return s
+	}
+
+	return q
 }

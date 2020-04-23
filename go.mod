@@ -30,6 +30,7 @@ require (
 	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tdewolff/test v1.0.6 // indirect
+	github.com/thoas/go-funk v0.5.0
 	github.com/tkrajina/go-reflector v0.5.1
 	golang.org/x/sys v0.0.0-20191120155948-bd437916bb0e // indirect
 )

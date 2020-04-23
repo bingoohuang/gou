@@ -11,13 +11,17 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
+	"strings"
+
+	"github.com/bingoohuang/gou/str"
+	"github.com/thoas/go-funk"
 
 	"github.com/bingoohuang/gou/lang"
 
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"
 
-	"github.com/bingoohuang/gou/str"
 	"github.com/spf13/pflag"
 
 	"github.com/sirupsen/logrus"
@@ -40,19 +44,22 @@ func DeclareLogFlags() {
 
 // TextFormatter extends the prefixed.TextFormatter with line joining.
 type TextFormatter struct {
-	Skip            int
-	PrintCallerInfo bool
+	Skip              int
+	NoPrintCallerInfo bool
 }
 
 var reNewLines = regexp.MustCompile(`\r?\n`) // nolint
 
 // Format formats the log output.
-func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	b := bytes.Buffer{}
 
-	b.WriteString(entry.Time.Format("2006-01-02 15:04:05.000") + " ")
+	b.WriteString(e.Time.Format("2006-01-02 15:04:05.000") + " ")
+	b.WriteString(fmt.Sprintf("%s ", strings.ToUpper(e.Level.String())))
+	b.WriteString(fmt.Sprintf("%d ", os.Getpid()))
+	b.WriteString(fmt.Sprintf("%d ", lang.CurGoroutineID().Uint64()))
 
-	if f.PrintCallerInfo {
+	if !f.NoPrintCallerInfo {
 		// getting caller info - it's expensive.
 		if _, file, line, ok := runtime.Caller(f.Skip); ok {
 			//funcName := runtime.FuncForPC(pc).Name()
@@ -60,9 +67,18 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	b.WriteString(fmt.Sprintf("[%s] ", lang.CurGoroutineID()))
-	b.WriteString("[" + entry.Level.String() + "] ")
-	b.WriteString(reNewLines.ReplaceAllString(entry.Message, ``) + "\n")
+	if len(e.Data) > 0 {
+		keys := funk.Keys(e.Data).([]string)
+		sort.Strings(keys)
+
+		for _, k := range keys {
+			b.WriteString(fmt.Sprintf("%s:%s ",
+				str.TryQuote(k, ":='"),
+				str.TryQuote(fmt.Sprintf("%v", e.Data[k]), ":='")))
+		}
+	}
+
+	b.WriteString(reNewLines.ReplaceAllString(e.Message, ``) + "\n")
 
 	return b.Bytes(), nil
 }
@@ -70,16 +86,20 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 // SetupLog setup log parameters.
 func SetupLog() io.Writer {
 	loglevel := viper.GetString("loglevel")
-	logrus.SetLevel(str.Decode(loglevel,
-		"debug", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
-		"error", logrus.ErrorLevel, logrus.InfoLevel).(logrus.Level))
 
-	viper.SetDefault("ContextHookSkip", 7)
+	l, err := logrus.ParseLevel(loglevel)
+	if err != nil {
+		l = logrus.InfoLevel
+	}
+
+	logrus.SetLevel(l)
+
+	viper.SetDefault("contextHookSkip", 7)
 
 	// https://stackoverflow.com/a/48972299
 	formatter := &TextFormatter{
-		Skip:            viper.GetInt("ContextHookSkip"),
-		PrintCallerInfo: viper.GetBool("PrintCallerInfo"),
+		Skip:              viper.GetInt("contextHookSkip"),
+		NoPrintCallerInfo: viper.GetBool("noPrintCallerInfo"),
 	}
 
 	if !viper.GetBool("logrus") {
@@ -94,9 +114,7 @@ func SetupLog() io.Writer {
 			logrus.Panicf("failed to create %s error %v\n", logdir, err)
 		}
 
-		return initLogger(str.Decode(loglevel,
-			"debug", logrus.DebugLevel, "info", logrus.InfoLevel, "warn", logrus.WarnLevel,
-			"error", logrus.ErrorLevel, logrus.InfoLevel).(logrus.Level), logdir, filepath.Base(os.Args[0])+".log", formatter)
+		return initLogger(l, logdir, filepath.Base(os.Args[0])+".log", formatter)
 	}
 
 	logrus.SetFormatter(formatter)
@@ -122,26 +140,8 @@ func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Fo
 	}
 
 	logrus.SetLevel(level)
-
-	//writerMap := lfshook.WriterMap{
-	//	logrus.DebugLevel: writer, // 为不同级别设置不同的输出目的
-	//	logrus.InfoLevel:  writer,
-	//	logrus.WarnLevel:  writer,
-	//	logrus.ErrorLevel: writer,
-	//	logrus.FatalLevel: writer,
-	//	logrus.PanicLevel: writer,
-	//}
-
-	writerMap := writer
-
-	logrus.AddHook(lfshook.NewHook(writerMap, formatter))
-	logrus.SetOutput(&Discarder{})
+	logrus.AddHook(lfshook.NewHook(writer, formatter))
+	logrus.SetOutput(ioutil.Discard)
 
 	return writer
 }
-
-// A Discarder sends all writes to ioutil.Discard.
-type Discarder struct{}
-
-// Write implements io.Writer.
-func (d *Discarder) Write(b []byte) (int, error) { return ioutil.Discard.Write(b) }
