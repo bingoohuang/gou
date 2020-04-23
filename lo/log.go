@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -62,8 +61,7 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	if !f.NoPrintCallerInfo {
 		// getting caller info - it's expensive.
 		if _, file, line, ok := runtime.Caller(f.Skip); ok {
-			//funcName := runtime.FuncForPC(pc).Name()
-			b.WriteString(fmt.Sprintf("%s:%d ", path.Base(file), line))
+			b.WriteString(fmt.Sprintf("%s:%d ", filepath.Base(file), line))
 		}
 	}
 
@@ -94,7 +92,7 @@ func SetupLog() io.Writer {
 
 	logrus.SetLevel(l)
 
-	viper.SetDefault("contextHookSkip", 7)
+	viper.SetDefault("contextHookSkip", 8)
 
 	// https://stackoverflow.com/a/48972299
 	formatter := &TextFormatter{
