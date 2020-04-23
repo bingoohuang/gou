@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/bingoohuang/gou/local"
 	"github.com/bingoohuang/gou/str"
 	"github.com/thoas/go-funk"
 
@@ -54,16 +55,20 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	b := bytes.Buffer{}
 
 	b.WriteString(e.Time.Format("2006-01-02 15:04:05.000") + " ")
-	b.WriteString(fmt.Sprintf("%s ", strings.ToUpper(e.Level.String())))
-	b.WriteString(fmt.Sprintf("%d ", os.Getpid()))
-	b.WriteString(fmt.Sprintf("%d ", lang.CurGoroutineID().Uint64()))
+	b.WriteString(fmt.Sprintf("%5s ", strings.ToUpper(e.Level.String())))
+	b.WriteString(fmt.Sprintf("%d --- ", os.Getpid()))
+	b.WriteString(fmt.Sprintf("[%d] ", lang.CurGoroutineID().Uint64()))
+	b.WriteString(fmt.Sprintf("[%s] ", local.String(local.KeyTraceID)))
 
 	if !f.NoPrintCallerInfo {
 		// getting caller info - it's expensive.
 		if _, file, line, ok := runtime.Caller(f.Skip); ok {
-			b.WriteString(fmt.Sprintf("%s:%d ", filepath.Base(file), line))
+			fl := fmt.Sprintf("%s:%d", filepath.Base(file), line)
+			b.WriteString(fmt.Sprintf("%-20s", fl))
 		}
 	}
+
+	b.WriteString(" : ")
 
 	if len(e.Data) > 0 {
 		keys := funk.Keys(e.Data).([]string)
