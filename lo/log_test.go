@@ -16,7 +16,6 @@ func TestSetupLog(t *testing.T) {
 	viper.Set("logrus", true)
 	viper.Set("logDebug", true)
 	viper.Set("logdir", "./logs")
-	viper.Set("contextHookSkip", 8)
 
 	viper.Set("logMaxBackups", 3)
 	viper.Set("logTimeFormat", "20060102150405")

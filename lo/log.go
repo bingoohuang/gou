@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sort"
 	"strings"
 
@@ -46,8 +45,6 @@ func DeclareLogFlags() {
 
 // TextFormatter extends the prefixed.TextFormatter with line joining.
 type TextFormatter struct {
-	Skip              int
-	NoPrintCallerInfo bool
 }
 
 var reNewLines = regexp.MustCompile(`\r?\n`) // nolint
@@ -62,14 +59,9 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	b.WriteString(fmt.Sprintf("[%d] ", lang.CurGoroutineID().Uint64()))
 	b.WriteString(fmt.Sprintf("[%s] ", local.String(local.KeyTraceID)))
 
-	if !f.NoPrintCallerInfo {
-		// getting caller info - it's expensive.
-		if _, file, line, ok := runtime.Caller(f.Skip); ok {
-			fl := fmt.Sprintf("%s:%d", filepath.Base(file), line)
-			b.WriteString(fmt.Sprintf("%-20s", fl))
-		}
-	}
+	caller := getCaller()
 
+	b.WriteString(fmt.Sprintf("%-20s", fmt.Sprintf("%s:%d", filepath.Base(caller.File), caller.Line)))
 	b.WriteString(" : ")
 
 	if len(e.Data) > 0 {
@@ -99,13 +91,8 @@ func SetupLog() io.Writer {
 
 	logrus.SetLevel(l)
 
-	viper.SetDefault("contextHookSkip", 8)
-
 	// https://stackoverflow.com/a/48972299
-	formatter := &TextFormatter{
-		Skip:              viper.GetInt("contextHookSkip"),
-		NoPrintCallerInfo: viper.GetBool("noPrintCallerInfo"),
-	}
+	formatter := &TextFormatter{}
 
 	if !viper.GetBool("logrus") {
 		logrus.SetFormatter(formatter)
@@ -147,6 +134,7 @@ func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Fo
 	logrus.SetLevel(level)
 	logrus.AddHook(lfshook.NewHook(writer, formatter))
 	logrus.SetOutput(ioutil.Discard)
+	logrus.SetReportCaller(true)
 
 	return writer
 }

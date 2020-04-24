@@ -266,3 +266,14 @@ func TryQuote(s string, chars string) string {
 
 	return q
 }
+
+// ReplacePrefix replace s that starts with prefix to replace.
+// eg . ReplacePrefix("/abc/efg", "/abc", "#"） => #/efg
+// eg . ReplacePrefix("/abc/efg", "/efg", "#"） => /abc/efg
+func ReplacePrefix(s, prefix, replace string) string {
+	if strings.HasPrefix(s, prefix) {
+		return replace + s[len(prefix):]
+	}
+
+	return s
+}
