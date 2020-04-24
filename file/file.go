@@ -75,7 +75,7 @@ func WriteString(filePath string, s string) (int, error) {
 
 const (
 	// TimeFormat defines the format of time to save to the file.
-	TimeFormat = "2006-01-02 15:04:05"
+	TimeFormat = "2006-01-02 15:04:05.000"
 )
 
 // ReadTime reads the time.Time from the given file.

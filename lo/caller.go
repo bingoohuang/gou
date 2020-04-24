@@ -1,11 +1,12 @@
 package lo
 
 import (
-	"github.com/bingoohuang/gou/str"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
+
+	"github.com/bingoohuang/gou/str"
 )
 
 // nolint gochecknoglobals
