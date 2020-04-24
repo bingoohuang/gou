@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/bingoohuang/gou/file"
 
 	"github.com/bingoohuang/gou/local"
@@ -25,22 +27,21 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 // DeclareLogPFlags declares the log pflags.
 func DeclareLogPFlags() {
-	pflag.StringP("loglevel", "", "info", "debug/info/warn/error")
-	pflag.StringP("logdir", "", "", "log dir")
-	pflag.BoolP("logrus", "", true, "enable logrus")
+	pflag.StringP(LoglevelKey, "", "info", "debug/info/warn/error")
+	pflag.StringP(LogdirKey, "", "", "log dir")
+	pflag.BoolP(LogrusKey, "", true, "enable log to file")
 }
 
 // DeclareLogFlags declares the log flags.
 func DeclareLogFlags() {
-	flag.String("loglevel", "info", "debug/info/warn/error")
-	flag.String("logdir", "", "log dir")
-	flag.Bool("logrus", true, "enable logrus")
+	flag.String(LoglevelKey, "info", "debug/info/warn/error")
+	flag.String(LogdirKey, "", "log dir")
+	flag.Bool(LogrusKey, true, "enable log to file")
 }
 
 // TextFormatter extends the prefixed.TextFormatter with line joining.
@@ -82,9 +83,7 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 
 // SetupLog setup log parameters.
 func SetupLog() io.Writer {
-	loglevel := viper.GetString("loglevel")
-
-	l, err := logrus.ParseLevel(loglevel)
+	l, err := logrus.ParseLevel(viper.GetString(LoglevelKey))
 	if err != nil {
 		l = logrus.InfoLevel
 	}
@@ -94,14 +93,14 @@ func SetupLog() io.Writer {
 	// https://stackoverflow.com/a/48972299
 	formatter := &TextFormatter{}
 
-	if !viper.GetBool("logrus") {
+	if !viper.GetBool(LogrusKey) {
 		logrus.SetFormatter(formatter)
 
 		return os.Stdout
 	}
 
 	appName := filepath.Base(os.Args[0])
-	logdir := viper.GetString("logdir")
+	logdir := viper.GetString(LogdirKey)
 
 	if logdir == "" {
 		logdir = file.HomeDirExpand("~/logs/" + appName)
@@ -114,19 +113,27 @@ func SetupLog() io.Writer {
 	return initLogger(l, logdir, appName+".log", formatter)
 }
 
+const (
+	LoglevelKey = "loglevel"
+	LogdirKey   = "logdir"
+	LogrusKey   = "logrus"
+
+	LogTimeFormatKey     = "logTimeFormat"
+	LogMaxBackupsDaysKey = "logMaxBackupsDays"
+	LogDebugKey          = "logDebug"
+)
+
 // 参考链接： https://tech.mojotv.cn/2018/12/27/golang-logrus-tutorial
 // nolint gomnd
 func initLogger(level logrus.Level, logDir, filename string, formatter logrus.Formatter) io.Writer {
-	viper.SetDefault("logMaxBackups", 7)
-	viper.SetDefault("logDebug", false)
-	viper.SetDefault("logTimeFormat", "20060102")
-
-	maxBackupsDays := viper.GetInt("logMaxBackupsDays")
-	timeFormat := viper.GetString("logTimeFormat")
-	logDebug := viper.GetBool("logDebug")
+	viper.SetDefault(LogMaxBackupsDaysKey, 7)
+	viper.SetDefault(LogDebugKey, false)
+	viper.SetDefault(LogTimeFormatKey, "2006-01-02")
 
 	writer, err := NewRotateFile(filepath.Join(logDir, filename),
-		MaxBackupsDays(maxBackupsDays), TimeFormat(timeFormat), Debug(logDebug))
+		MaxBackupsDays(viper.GetInt(LogMaxBackupsDaysKey)),
+		TimeFormat(viper.GetString(LogTimeFormatKey)),
+		Debug(viper.GetBool(LogDebugKey)))
 	if err != nil {
 		logrus.Errorf("config local file system logger error. %v", errors.WithStack(err))
 	}

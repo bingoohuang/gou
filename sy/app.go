@@ -55,7 +55,7 @@ func SetupApp(appOption *AppOption) {
 	htt.StartPprof(*pprofAddr)
 
 	if appOption.LogLevel != "" {
-		viper.Set("loglevel", appOption.LogLevel)
+		viper.Set(lo.LoglevelKey, appOption.LogLevel)
 	}
 
 	appOption.LogWriter = lo.SetupLog()

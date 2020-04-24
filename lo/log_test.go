@@ -13,12 +13,12 @@ import (
 func TestSetupLog(t *testing.T) {
 	_ = os.RemoveAll("./logs")
 
-	viper.Set("logrus", true)
-	viper.Set("logDebug", true)
-	viper.Set("logdir", "./logs")
+	viper.Set(writeToLogfile, true)
+	viper.Set(logDebug, true)
+	viper.Set(logdir, "./logs")
 
-	viper.Set("logMaxBackups", 3)
-	viper.Set("logTimeFormat", "20060102150405")
+	viper.Set(logMaxBackupsDays, 3)
+	viper.Set(logTimeFormat, "20060102150405")
 
 	SetupLog()
 
