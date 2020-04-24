@@ -90,7 +90,7 @@ func ReadTime(filename string, defaultValue string) (time.Time, error) {
 
 // WriteTime writes the time.Time to the given file.
 func WriteTime(filename string, v time.Time) error {
-	return WriteValue(filename, v.Format(TimeFormat))
+	return WriteValue(filename, v.Local().Format(TimeFormat))
 }
 
 func ReadValue(filename, defaultValue string) (string, error) {
