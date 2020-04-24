@@ -1,6 +1,7 @@
 package lo
 
 import (
+	"github.com/bingoohuang/gou/str"
 	"os"
 	"runtime"
 	"strings"
@@ -49,7 +50,10 @@ func getCaller() *runtime.Frame {
 
 	for f, again := frames.Next(); again; f, again = frames.Next() {
 		// If the caller isn't part of this package, we're done
-		if pkg := getPackageName(f.Function); pkg != "github.com/sirupsen/logrus" && pkg != loPackage {
+		if pkg := getPackageName(f.Function); str.NoneOf(pkg,
+			"github.com/sirupsen/logrus",
+			"github.com/rifflock/lfshook",
+			loPackage) {
 			return &f
 		}
 	}
