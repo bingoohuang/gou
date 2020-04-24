@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -68,11 +67,15 @@ func SetupApp(appOption *AppOption) {
 
 func initIPO(appOption *AppOption) {
 	if appOption.CnfTpl != "" {
-		_ = initCfgFile(appOption.CnfTpl, "cnf.toml")
+		if err := initCfgFile(appOption.CnfTpl, "cnf.toml"); err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 
 	if appOption.CtlTpl != "" {
-		_ = initCtl(appOption.CtlTpl, "ctl")
+		if err := initCtl(appOption.CtlTpl, "ctl"); err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 
 	os.Exit(0)
@@ -85,12 +88,11 @@ func initCfgFile(conf, configFileName string) error {
 		return nil
 	}
 
-	// 0644->即用户具有读写权限，组用户和其它用户具有只读权限；
-	if err := ioutil.WriteFile(configFileName, []byte(conf), 0644); err != nil {
+	if err := file.WriteValue(configFileName, conf); err != nil {
 		return err
 	}
 
-	fmt.Println(configFileName + " created!")
+	fmt.Println(configFileName, "created!")
 
 	return nil
 }
@@ -103,26 +105,30 @@ func initCtl(ctl, ctlFilename string) error {
 	}
 
 	tpl, err := template.New(ctlFilename).Parse(ctl)
-
 	if err != nil {
 		return err
 	}
 
 	binArgs := argsExcludeInit()
-
-	m := map[string]string{"BinName": os.Args[0], "BinArgs": strings.Join(binArgs, " ")}
+	m := map[string]string{
+		"BinName": os.Args[0],
+		"BinArgs": strings.Join(binArgs, " ")}
 
 	var content bytes.Buffer
 	if err := tpl.Execute(&content, m); err != nil {
 		return err
 	}
 
-	// 0755->即用户具有读/写/执行权限，组用户和其它用户具有读写权限；
-	if err = ioutil.WriteFile(ctlFilename, content.Bytes(), 0755); err != nil {
+	if err := file.WriteValue(ctlFilename, content.String()); err != nil {
 		return err
 	}
 
-	fmt.Println(ctlFilename + " created!")
+	// 0755->即用户具有读/写/执行权限，组用户和其它用户具有读写权限；
+	if err := os.Chmod(ctlFilename, 0755); err != nil {
+		return err
+	}
+
+	fmt.Println(ctlFilename, "created!")
 
 	return nil
 }
@@ -130,12 +136,8 @@ func initCtl(ctl, ctlFilename string) error {
 func argsExcludeInit() []string {
 	binArgs := make([]string, 0, len(os.Args)-2) // nolint gomnd
 
-	for i, arg := range os.Args {
-		if i == 0 {
-			continue
-		}
-
-		if strings.Index(arg, "-i") == 0 || strings.Index(arg, "--init") == 0 {
+	for _, arg := range os.Args[1:] {
+		if strings.Index(arg, "--init") == 0 {
 			continue
 		}
 

@@ -135,3 +135,9 @@ func WriteValue(filename string, value string) error {
 func HomeDirExpand(dir string) string {
 	return str.PickFirst(homedir.Expand(dir))
 }
+
+// ReadBytes reads bytes from the file.
+func ReadBytes(filename string) []byte {
+	b, _ := ioutil.ReadFile(filename)
+	return b
+}
