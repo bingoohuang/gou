@@ -55,7 +55,8 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	b := bytes.Buffer{}
 
 	b.WriteString(e.Time.Format("2006-01-02 15:04:05.000") + " ")
-	b.WriteString(fmt.Sprintf("%5s ", strings.ToUpper(e.Level.String())))
+	// align the longest WARNING, which has the length of 7
+	b.WriteString(fmt.Sprintf("%7s ", strings.ToUpper(e.Level.String())))
 	b.WriteString(fmt.Sprintf("%d --- ", os.Getpid()))
 	b.WriteString(fmt.Sprintf("[%d] ", lang.CurGoroutineID().Uint64()))
 	b.WriteString(fmt.Sprintf("[%s] ", local.String(local.KeyTraceID)))
