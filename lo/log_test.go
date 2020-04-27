@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/spf13/viper"
 
 	"github.com/sirupsen/logrus"
@@ -21,6 +23,13 @@ func TestSetupLog(t *testing.T) {
 	viper.Set(LogTimeFormatKey, "20060102150405")
 
 	SetupLog()
+
+	err := errors.New("error")
+	err = errors.Wrap(err, "open failed")
+	err = errors.Wrap(err, "read config failed")
+
+	// 使用`%+v`来打印日志堆栈
+	logrus.Warnf("errors %+v", err)
 
 	for i := 0; i < 5; i++ {
 		logrus.WithFields(map[string]interface{}{"key1": "value10", "key2": "value\n20"}).Info("abc", "efg")

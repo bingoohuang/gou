@@ -71,7 +71,8 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	b.WriteString(reNewLines.ReplaceAllString(e.Message, ``) + "\n")
+	// indent multiple lines log
+	b.WriteString(reNewLines.ReplaceAllString(e.Message, "\n ") + "\n")
 
 	return b.Bytes(), nil
 }
