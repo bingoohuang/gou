@@ -37,8 +37,7 @@ func BaseDir(dirs []string) string {
 // IsExist checks whether a file or directory exists.
 // It returns false when the file or directory does not exist.
 func IsExist(fp string) bool {
-	_, err := os.Stat(fp)
-	return err == nil || os.IsExist(err)
+	return DoesExists(fp)
 }
 
 // DirsUnder list dirs under dirPath
@@ -73,9 +72,43 @@ func DirsUnder(dirPath string) ([]string, error) {
 
 // InsureDir insure dir exist
 func InsureDir(fp string) error {
-	if IsExist(fp) {
+	if DoesExists(fp) {
 		return nil
 	}
 
 	return os.MkdirAll(fp, os.ModePerm)
+}
+
+// ExistsAsFile checks if a file exists and is not a directory before we
+// try using it to prevent further errors.
+func ExistsAsFile(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return !info.IsDir()
+}
+
+// ExistsAsDir checks if a file exists and is a directory before we
+// try using it to prevent further errors.
+func ExistsAsDir(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return info.IsDir()
+}
+
+// DoesExists checks if a file/directory exists.
+func DoesExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
+}
+
+// DoesNotExists checks if a file/directory not exists.
+func DoesNotExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return os.IsNotExist(err)
 }
