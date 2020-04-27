@@ -9,18 +9,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/bingoohuang/gou/file"
 
-	"github.com/bingoohuang/gou/local"
-	"github.com/bingoohuang/gou/str"
-	"github.com/thoas/go-funk"
-
 	"github.com/bingoohuang/gou/lang"
+	"github.com/bingoohuang/gou/local"
 
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"
@@ -67,13 +63,11 @@ func (f *TextFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	b.WriteString(" : ")
 
 	if len(e.Data) > 0 {
-		keys := funk.Keys(e.Data).([]string)
-		sort.Strings(keys)
-
-		for _, k := range keys {
-			b.WriteString(fmt.Sprintf("%s:%s ",
-				str.TryQuote(k, ":='"),
-				str.TryQuote(fmt.Sprintf("%v", e.Data[k]), ":='")))
+		if jsonBytes, err := lang.JSONMarshal(e.Data); err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "format error: %v", err)
+		} else {
+			b.Write(jsonBytes)
+			b.WriteString(" ")
 		}
 	}
 
