@@ -85,12 +85,8 @@ func ParseUint(s string) uint { f, _ := ParseUintE(s); return f }
 // ParseBool returns the boolean value represented by the string.
 // It accepts 1, t, true, y, yes, on with camel case incentive.
 func ParseBool(s string) bool {
-	switch strings.ToLower(s) {
-	case "1", "t", "true", "y", "yes", "on":
-		return true
-	}
-
-	return false
+	b, _ := ParseBoolE(s)
+	return b
 }
 
 // ParseBoolE returns the boolean value represented by the string.
@@ -116,14 +112,14 @@ func ParseDurationE(s string) (time.Duration, error) {
 	return time.ParseDuration(StripSpaces(s))
 }
 
-// StripSpaces strips all spaces from the string.
-func StripSpaces(str string) string {
+// Strip strips runes that predicates returns true.
+func Strip(str string, predicates ...func(rune) bool) string {
 	var b strings.Builder
 
 	b.Grow(len(str))
 
 	for _, ch := range str {
-		if !unicode.IsSpace(ch) {
+		if !matchesAny(predicates, ch) {
 			b.WriteRune(ch)
 		}
 	}
@@ -131,13 +127,37 @@ func StripSpaces(str string) string {
 	return b.String()
 }
 
-// HasSpaces test if any spaces in the string.
-func HasSpaces(str string) bool {
-	for _, ch := range str {
-		if unicode.IsSpace(ch) {
+func matchesAny(predicates []func(rune) bool, ch rune) bool {
+	for _, p := range predicates {
+		if p(ch) {
 			return true
 		}
 	}
 
 	return false
+}
+
+// StripSpaces strips all spaces from the string.
+func StripSpaces(str string) string {
+	return Strip(str, unicode.IsSpace)
+}
+
+// HasSpaces test if any spaces in the string.
+func HasSpaces(str string) bool {
+	return Has(str, unicode.IsSpace)
+}
+
+// Has test if any rune which predicates tells it it true.
+func Has(str string, predicates ...func(rune) bool) bool {
+	for _, ch := range str {
+		if matchesAny(predicates, ch) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func Not(p func(rune) bool) func(rune) bool {
+	return func(r rune) bool { return !p(r) }
 }
