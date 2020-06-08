@@ -1,7 +1,6 @@
 package cnf
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -97,9 +96,7 @@ func LoadE(cnfFile string, values ...interface{}) error {
 // Load loads the cnfFile content and viper bindings to value.
 func Load(cnfFile string, values ...interface{}) {
 	if err := LoadE(cnfFile, values...); err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			logrus.Warnf("Load Cnf %s error %v", cnfFile, err)
-		}
+		logrus.Panicf("Load Cnf %s error %v", cnfFile, err)
 	}
 
 	ViperToStruct(values...)
