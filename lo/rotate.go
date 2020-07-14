@@ -14,6 +14,8 @@ type RotateFile struct {
 	Filename       string
 	MaxBackupsDays int
 
+	lastWriteTime time.Time
+
 	lastTime string
 	dir      string
 	file     *os.File
@@ -21,6 +23,20 @@ type RotateFile struct {
 	mu         sync.Mutex
 	TimeFormat string
 	Debug      bool
+}
+
+func StartTicker(interval time.Duration, f func() bool) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if f() {
+				return
+			}
+		}
+	}
 }
 
 // OptionFn defines options func prototype to set options for RotateFile.
@@ -59,6 +75,8 @@ func NewRotateFile(filename string, optionFns ...OptionFn) (*RotateFile, error) 
 	if err := o.open(); err != nil {
 		return nil, err
 	}
+
+	go StartTicker(time.Second, o.tick)
 
 	return o, nil
 }
@@ -160,11 +178,31 @@ func (o *RotateFile) close() error {
 	return err
 }
 
+func (o *RotateFile) tick() bool {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
+	if o.file == nil {
+		return true
+	}
+
+	if time.Since(o.lastWriteTime) < time.Second {
+		return false
+	}
+
+	if err := o.file.Sync(); err != nil {
+		o.debugf("sync file %s failed, error %+v", o.Filename, err)
+	}
+
+	return false
+}
+
 func (o *RotateFile) detectRotate(t time.Time) (rotated string, outMaxBackups []string) {
 	writeTime := t.Format(o.TimeFormat)
 
 	if o.lastTime == "" {
 		o.lastTime = writeTime
+		o.lastWriteTime = t
 	}
 
 	prefix := o.Filename + "."
@@ -172,6 +210,7 @@ func (o *RotateFile) detectRotate(t time.Time) (rotated string, outMaxBackups []
 	if o.lastTime != writeTime {
 		rotated = prefix + o.lastTime
 		o.lastTime = writeTime
+		o.lastWriteTime = t
 	}
 
 	if o.MaxBackupsDays > 0 {
