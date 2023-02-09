@@ -9,7 +9,7 @@ require (
 	github.com/bingoohuang/gor v0.0.0-20200628053500-ec6cb95c0e1b
 	github.com/bingoohuang/strcase v0.0.0-20200312105414-ac2c85cfc85d
 	github.com/bingoohuang/toml v0.0.0-20210512074958-7ceff543b9a3
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.7
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
