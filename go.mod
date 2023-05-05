@@ -9,11 +9,11 @@ require (
 	github.com/bingoohuang/gor v0.0.0-20200628053500-ec6cb95c0e1b
 	github.com/bingoohuang/strcase v0.0.0-20200312105414-ac2c85cfc85d
 	github.com/bingoohuang/toml v0.0.0-20210512074958-7ceff543b9a3
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.9.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
-	github.com/json-iterator/go v1.1.11
+	github.com/json-iterator/go v1.1.12
 	github.com/magiconair/properties v1.8.5
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.9.3
@@ -24,7 +24,7 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.1
 	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tkrajina/go-reflector v0.5.4
 )
